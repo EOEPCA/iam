@@ -1,11 +1,12 @@
-site_name: EOEPCA Document Template
-site_url: https://eoepca.readthedocs.io/projects/template/en/latest/
-repo_url: https://github.com/EOEPCA/document-template/
+site_name: EOEPCA IAM
+site_url: https://eoepca.readthedocs.io/projects/iam/en/latest/
+repo_url: https://github.com/EOEPCA/iam/
 edit_uri: "edit/main/docs/"
 
 nav:
-  - Home: home.html
-  - Building-block Name:
+  - EOEPCA Documentation: https://eoepca.readthedocs.io/
+  - System Architecture: https://eoepca.readthedocs.io/projects/architecture/
+  - Identity and Access Management Building Block:
     - index.md
     - Getting Started:
       - getting-started/quick-start.md
