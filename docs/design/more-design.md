@@ -55,6 +55,8 @@ but that are not expected to be required for the new IAM BB. It also includes us
 cases that we assume to be out of scope of the IAM BB, but that might still gain some
 relevance as the project evolves.
 
+Please note, the following use cases do not yet have a unique identifier. These will be defined in a later phase.
+
 #### IAM-UC-?: Direct authentication (NON-use-case)
 
 User stories: (none)
