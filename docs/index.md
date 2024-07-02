@@ -7,16 +7,10 @@ The documentation for the `Identity and Access Management` building block is org
 
 * **Introduction**<br>
   Introduction to the BB - including summary of purpose and capabilities.
-* **Getting Started**<br>
-  Quick start instructions - including installation, e.g. of a local instance.
 * **Design**<br>
   Description of the BB design - including its subcomponent architecture and interfaces.
-* **Usage**<br>
-  Tutorials, How-tos, etc. to communicate usage of the BB.
 * **Administration**<br>
   Configuration and maintenance of the BB.
-* **API**<br>
-  Details of APIs provided by the BB - including endpoints, usage descriptions and examples etc.
 
 ## About `Identity and Access Management`
 
@@ -25,6 +19,14 @@ Some Components of the IAM BB can also be used as a template for local IAM-relat
 functionality of other BBs. 
 
 ## Capabilities
+
+Summary of the capabilities:
+
+- Provide Single Sign-on
+- Support Identity Federations
+- Fine grained policy enforcement
+- Integration of existing PEPs and IAMs 
+- Provision of a PEP template
 
 For authentication, the IAM BB provides a central identity provider (IdP) that integrates
 with a set of external IdPs and is based on Keycloak.
