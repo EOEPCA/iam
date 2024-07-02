@@ -8,21 +8,30 @@ nav:
   - System Architecture: https://eoepca.readthedocs.io/projects/architecture/
   - Identity and Access Management Building Block:
     - index.md
-    - Getting Started:
-      - getting-started/quick-start.md
-      - getting-started/more-getting-started.md
+  #  - Getting Started:
+  #    - getting-started/quick-start.md
+  #    - getting-started/more-getting-started.md
     - Design:
-      - design/overview.md
-      - design/more-design.md
-    - Usage:
-      - usage/tutorials.md
-      - usage/howtos.md
+      - Architecture: 
+        - design/overview.md
+        - design/more-design.md
+        - Components:
+          - design/apisix.md
+          - design/keycloak.md
+          - design/opa.md
+  #  - Usage:
+  #    - usage/tutorials.md
+  #    - usage/howtos.md
     - Administration:
-      - admin/configuration.md
-      - admin/maintenance.md
-    - API:
-      - api/endpoint-specification.md
-      - api/usage.md
+      - Installation:
+        - admin/apisix_install.md
+        - admin/keycloak_install.md
+        - admin/opa_install.md
+  #    - admin/configuration.md
+  #    - admin/maintenance.md
+  #  - API:
+  #    - api/endpoint-specification.md
+  #    - api/usage.md
 
 theme:
   # name: mkdocs
