@@ -1,0 +1,16 @@
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: keycloak-route
+  namespace: eoepca
+spec:
+  http:
+  - backends:
+    - serviceName: keycloak
+      servicePort: 80
+    match:
+      hosts:
+      - "%hostname%"
+      paths:
+      - /*
+    name: keycloak

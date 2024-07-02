@@ -5,7 +5,11 @@ No guarantees are made regarding the consistency and correctness of its contents
 
 ## IAM Building Block Overview
 
-(TBD: Add figure and describe BB structure based on it.)
+The IAM BB essentially consists of 3 components Keycloak, Open Policy Agent (OPA) and APISIX. 
+Keycloak is the core component and is responsible for authentication, authorization and federated identity tasks. 
+The Open Policy Agent is used as policy engine, while the APISIX Ingress controller contributes policy enforcement functions. 
+From the perspective of the IAM BB, there are several other BBs which relies on its authentication and authorization functions. 
+External identity providers can be connected via identity federations and also existing IAM services of utilization domains can be integrated.
 
 The IAM BB acts as a central contact point for authentication and authorization.
 For authentication, it provides a central identity provider (IdP) that integrates
@@ -59,15 +63,11 @@ Protocols:
 
 ## Internal Interfaces
 
-(TBD)
-
 Protocols:
 
 * Git (if not exposed, tbc)
 
 ## Required Resources
-
-(TBD)
 
 The following components have been foreseen so far:
 
@@ -78,10 +78,6 @@ The following components have been foreseen so far:
 * PostgreSQL
 * APISIX
 * Keycloak-OPA adapter
-
-## Static Architecture
-
-(TBD)
 
 ## Use Cases
 
