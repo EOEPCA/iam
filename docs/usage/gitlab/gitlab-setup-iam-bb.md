@@ -1,4 +1,6 @@
-# Integrating the Identity & Access Management BB as Identity Provider in GitLab
+# GitLab Integration
+
+This section describe an example integration of the Identity & Access Management BB as Identity Provider in GitLab
 
 To setup a login with the IAM BB in GitLab, configuration is needed on Keycloak and GitLab side.  For the communication between Keycloak and GitLab the OpenID-Connect (OIDC) Protocol is used.
 
