@@ -19,7 +19,9 @@ nav:
           - design/apisix.md
           - design/keycloak.md
           - design/opa.md
-  #  - Usage:
+    - Usage:
+      - How-tos: 
+       - usage/gitlab/gitlab-setup-iam-bb.md
   #    - usage/tutorials.md
   #    - usage/howtos.md
     - Administration:
