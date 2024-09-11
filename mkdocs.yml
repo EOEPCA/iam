@@ -5,8 +5,7 @@ edit_uri: "edit/main/docs/"
 
 nav:
   - EOEPCA Documentation: https://eoepca.readthedocs.io/
-  - System Architecture: https://eoepca.readthedocs.io/projects/architecture/
-  - Identity and Access Management Building Block:
+  - Identity and Access Management:
     - index.md
   #  - Getting Started:
   #    - getting-started/quick-start.md
@@ -47,6 +46,7 @@ theme:
   favicon: img/favicon.ico
   features:
     # Navigation
+    - navigation.footer
     - navigation.instant
     - navigation.tracking
     - navigation.tabs

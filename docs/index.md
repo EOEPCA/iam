@@ -11,6 +11,8 @@ The documentation for the `Identity and Access Management` building block is org
   Description of the BB design - including its subcomponent architecture and interfaces.
 * **Administration**<br>
   Configuration and maintenance of the BB.
+* **Usage**<br>
+  How-tos and example configurations for usage by example.
 
 ## About `Identity and Access Management`
 
