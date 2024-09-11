@@ -18,11 +18,6 @@ nav:
           - design/apisix.md
           - design/keycloak.md
           - design/opa.md
-    - Usage:
-      - How-tos: 
-       - usage/gitlab/gitlab-setup-iam-bb.md
-  #    - usage/tutorials.md
-  #    - usage/howtos.md
     - Administration:
       - Installation:
         - admin/apisix_install.md
@@ -33,6 +28,11 @@ nav:
   #  - API:
   #    - api/endpoint-specification.md
   #    - api/usage.md
+    - Usage:
+      - How-tos: 
+       - usage/gitlab/gitlab-setup-iam-bb.md
+  #    - usage/tutorials.md
+  #    - usage/howtos.md
 
 theme:
   # name: mkdocs
