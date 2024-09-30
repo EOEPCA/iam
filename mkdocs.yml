@@ -16,8 +16,8 @@ nav:
         - design/more-design.md
         - Components:
           - design/apisix.md
-          - design/keycloak.md
-          - design/opa.md
+          - design/keycloak-opa-plugin.md
+          - design/opal-opa.md
     - Administration:
       - Installation:
         - admin/apisix_install.md
