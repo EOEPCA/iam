@@ -24,9 +24,9 @@ nav:
         - admin/keycloak_install.md
         - admin/opa_install.md
       - Configuration:
-        - admin/keycloak-configuration.md
-        - admin/use-opa-rules.md
-        - admin/github-setup-idp.md
+        - admin/keycloak/keycloak-configuration.md
+        - admin/keycloak/use-opa-rules.md
+        - admin/github-idp/github-setup-idp.md
   #    - admin/configuration.md
   #    - admin/maintenance.md
   #  - API:
@@ -36,7 +36,7 @@ nav:
       - How-tos: 
         - usage/gitlab/gitlab-setup-iam-bb.md
         - usage/keycloak-as-idp.md
-        - usage/login-at-keycloak.md
+        - usage/loginflow/login-at-keycloak.md
   #     - usage/tutorials.md
   #     - usage/howtos.md
 
