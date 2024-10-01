@@ -57,7 +57,7 @@ relevance as the project evolves.
 
 Please note, the following use cases do not yet have a unique identifier. These will be defined in a later phase.
 
-#### IAM-UC-?: Direct authentication (NON-use-case)
+#### IAM-UC-7: Direct authentication (NON-use-case)
 
 User stories: (none)
 
@@ -65,7 +65,19 @@ Out of scope of the IAM BB. We assume that authentication is always performed
 through external IdPs and that direct authentication against locally stored
 user profiles is therefore not relevant.
 
-#### IAM-UC-?: User Profile Management (NON-use-case)
+#### IAM-UC-8: SCIM support
+
+User stories:
+
+* As a user, I want a federated solution to handle user attributes, so that multiple platforms can share these attributes and use them to inform authorisation and service provision decisions (UC62)
+
+We assume that all relevant user information can be made available through
+OIDC during the authentication (SSO) or authorization (UMA) flow.
+If this turns out to be insufficient, however, SCIM support may become relevant.
+In this case, the um-common-scim-client component from the original EOEPCA project
+could be reused if possible.
+
+#### IAM-UC-9: User Profile Management (NON-use-case)
 
 User Stories:
 
@@ -75,7 +87,7 @@ Out of scope of the IAM BB. We assume that user profile management
 functionality is provided by the original IdPs that own the respective
 user profiles.
 
-#### IAM-UC-?: Update Policy-Relevant Data
+#### IAM-UC-10: Update Policy-Relevant Data
 
 User stories: (none)
 
@@ -87,7 +99,7 @@ Generally, any required data can be replicated into OPA as long
 as it is not too large and not updated too frequently. As an exception,
 user-related information should *never* be replicated into OPA.
 
-#### IAM-UC-?: Policy Delegation (probable NON-use-case)
+#### IAM-UC-11: Policy Delegation (probable NON-use-case)
 
 User stories: (none)
 
