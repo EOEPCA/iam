@@ -1,4 +1,4 @@
-# Auth-Component (Keycloak)
+# AuthN/AuthZ Component (Keycloak)
 
 Keycloak is used as the central authentication and authorization component. 
 Keycloak is a powerful open source platform for identity and access management (IAM) that offers a wide range of functions for managing authentication and authorization in an application or platform.
