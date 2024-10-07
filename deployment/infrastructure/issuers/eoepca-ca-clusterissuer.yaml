@@ -1,0 +1,12 @@
+# This file provides a cluster issuer that has the same name as the
+# corresponding issuer in the ArgoCD environment, which is only used to
+# obtain certificates for cluster-internal DNS names there.
+# In the internal test environment, this issuer is also used for
+# Cluster-external, but network-internal DNS names (ingress).
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: eoepca-ca-clusterissuer
+spec:
+  ca:
+    secretName: ca-root-secret

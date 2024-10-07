@@ -1,4 +1,4 @@
-# Architecture/ Overview
+# Architecture Overview
 
 **Note**: This document is work in progress in an early state.
 No guarantees are made regarding the consistency and correctness of its contents.
@@ -24,6 +24,8 @@ whereas more complex policy decisions are delegated to the Open Policy Agent (OP
 which is also part of the IAM BB. Other BBs may also query the OPA directly in order
 to obtain policy decisions without involving the complexity of a UMA flow.
 
+![High Level Architecture IAM BB](iam-bb_high-level.drawio.png)
+
 ## External Interfaces
 
 ### Exposed Interfaces
@@ -44,7 +46,7 @@ Protocols:
 * SAML (optional)
 * UMA
 * OPA/ Rego (REST)
-* Git (optional, tbc)
+* Git (optional)
 
 ### Consumed Interfaces
 
@@ -65,7 +67,7 @@ Protocols:
 
 Protocols:
 
-* Git (if not exposed, tbc)
+* Git (if not exposed)
 
 ## Required Resources
 
@@ -78,76 +80,3 @@ The following components have been foreseen so far:
 * PostgreSQL
 * APISIX
 * Keycloak-OPA adapter
-
-## Use Cases
-
-### Authentication-related Use Cases
-
-#### IAM-UC-1: Delegated authentication (UC60, (UC61), UC62)
-
-User stories:
-
-* As a user, I want to authenticate with each platform using the same identity, so that I don't have to maintain multiple identities across many platforms (UC60)
-* As an administrator, I want to uniquely identify each user (part of UC61)
-* As a user, I want a federated solution to handle user attributes, so that multiple platforms can share these attributes and use them to inform authorisation and service provision decisions (UC62)
-
-The IAM BB must be able to delegate authentication to commonly used external IdPs.
-It must also be able to handle identity-related attributes provided by these IdPs,
-use them for informing policy decisions and pass them to other BBs as required.
-
-All in all, the IAM BB should ensure that users from any configured sources (IdPs)
-are able to use services and resources of any connected BBs as far as access is granted
-to them and no technical constraints (e.g. missing required attributes) prohibit this.
-
-### Authorization-related Use Cases
-
-#### IAM-UC-2: Delegated authorization
-
-User stories:
-
-* As a user, I want to be able to authorize services to access resources on my behalf (new)
-
-This is especially relevant in the context of processing where the processing
-system may need to retrieve a protected input product from the archive on
-behalf of the user.
-
-#### IAM-UC-3: Resource Sharing (UC63, UC64, UC65)
-
-User stories:
-
-* As a user, I want my resources to be accessible only by me and those that I selectively permit (UC63)
-* As a user, I want to selectively share my resources with other users/groups (UC64)
-* As a user, I want to receive authorised access to resources that have been shared with me (UC65)
-
-### Miscellaneous Use Cases
-
-#### IAM-UC-4: Policy Management (UC61)
-
-User stories:
-
-* As an administrator, I want to authorise access to the platform resources using policy rules that rely upon the user identity and associated attributes (part of UC61)
-* As an administrator, I want to edit and update policy rules in a convenient and traceable way (new)
-
-#### IAM-UC-5: Update Resource Information
-
-User stories:
-
-* As an administrator, I want to ensure that policy decisions are always based on recent information (new)
-* As a user, I want new permissions granted to me to take effect without a noticeable delay (new)
-* As a user, I want to be able to access new resources after registration without a noticeable delay if I have permission to do so (new)
-
-Technical prerequisite for resource sharing.
-This use case can be generalized to handle further information if required.
-
-#### IAM-UC-6: IAM Administrative Access Control
-
-User stories:
-
-* As an administrator, I want to ensure that only privileged users can access administrative functionality of the IAM BB (new)
-
-Security requirement.
-
-### Ancillary Use Cases
-
-For use case that are not foreseen to be implemented by the IAM BB itself,
-but may affect it in some way, see section *Ancillary Use Cases* in `more-design.md`.

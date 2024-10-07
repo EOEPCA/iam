@@ -1,0 +1,9 @@
+# A cluster issuer that issues self-signed certificates.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  # Note: The original name was "selfsigned-cluster-issuer".
+  # Renamed it for consistency with "eoepca-ca-clusterissuer".
+  name: selfsigned-clusterissuer
+spec:
+  selfSigned: {}

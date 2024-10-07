@@ -18,7 +18,7 @@ global:
   ##   - myRegistryKeySecretName
   ##
   imagePullSecrets: []
-  storageClass: ""
+  storageClass: "managed-nfs-storage-retain"
   ## Compatibility adaptations for Kubernetes platforms
   ##
   compatibility:
@@ -99,9 +99,9 @@ diagnosticMode:
 ## @param image.debug Specify if debug logs should be enabled
 ##
 image:
-  registry: "%TBD%"
-  repository: "%TBD%"
-  tag: latest
+  registry: byud8gih.c1.de1.container-registry.ovh.net
+  repository: eoepca/keycloak-with-opa-plugin
+  tag: 0.3
   digest: ""
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -206,7 +206,7 @@ production: false
 ## @param proxy reverse Proxy mode edge, reencrypt, passthrough or none
 ## ref: https://www.keycloak.org/server/reverseproxy
 ##
-proxy: passthrough
+proxy: edge
 ## @param httpRelativePath Set the path relative to '/' for serving resources. Useful if you are migrating from older version which were using '/auth/'
 ## ref: https://www.keycloak.org/migration/migrating-to-quarkus#_default_context_path_changed
 ##
@@ -263,9 +263,13 @@ args: []
 ##
 extraEnvVars:
   - name: KC_SPI_POLICY_OPA_OPA_BASE_URI
-    value: "http://opal-client:8181/v1/data/"
+    value: "http://iam-opal-opal-client:8181/v1/data/"
   - name: KC_SPI_POLICY_OPA_OPA_POLICY_DIR
     value: "/opt/bitnami/keycloak/conf/opa-policies"
+  - name: KC_HOSTNAME_URL
+    value: "https://iam-auth.develop.eoepca.org"
+  - name: KC_HOSTNAME_ADMIN_URL
+    value: "https://iam-auth.develop.eoepca.org"
 
 ## @param extraEnvVarsCM Name of existing ConfigMap containing extra env vars
 ##
@@ -1279,11 +1283,11 @@ keycloakConfigCli:
 postgresql:
   enabled: true
   auth:
-    postgresPassword:
+#    postgresPassword: "..."
     username: bn_keycloak
-    password: 
+#    password: "..."
     database: bitnami_keycloak
-    existingSecret: ""
+    existingSecret: "kc-postgres"
   architecture: standalone
 ## External PostgreSQL configuration
 ## All of these values are only used when postgresql.enabled is set to false

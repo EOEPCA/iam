@@ -13,32 +13,27 @@ nav:
     - Design:
       - Architecture: 
         - design/overview.md
-        - design/more-design.md
-        - Components:
-          - design/apisix.md
-          - design/keycloak-opa-plugin.md
-          - design/opal-opa.md
+      - Use Cases:
+        - design/use-cases/use-cases.md
+      - Components:
+        - design/policy-enforcement/apisix.md
+        - design/auth-component/keycloak.md
+        - design/auth-component/keycloak-opa-plugin.md
+        - design/policy-component/opal-opa.md
+      - API:
+        - api/opa-policy-api.md
     - Administration:
       - Installation:
-        - admin/apisix_install.md
-        - admin/keycloak_install.md
-        - admin/opa_install.md
+        - admin/installation/installation.md
       - Configuration:
-        - admin/keycloak/keycloak-configuration.md
-        - admin/keycloak/use-opa-rules.md
-        - admin/github-idp/github-setup-idp.md
-  #    - admin/configuration.md
-  #    - admin/maintenance.md
-  #  - API:
-  #    - api/endpoint-specification.md
-  #    - api/usage.md
+        - admin/configuration/keycloak/keycloak-configuration.md
+        - admin/configuration/keycloak/use-opa-rules.md
+        - admin/configuration/github-idp/github-setup-idp.md
     - Usage:
       - How-tos: 
         - usage/gitlab/gitlab-setup-iam-bb.md
-        - usage/keycloak-as-idp.md
+        - usage/config-as-idp/keycloak-as-idp.md
         - usage/loginflow/login-at-keycloak.md
-  #     - usage/tutorials.md
-  #     - usage/howtos.md
 
 theme:
   # name: mkdocs
