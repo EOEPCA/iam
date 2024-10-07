@@ -162,7 +162,7 @@ rbac:
 
 service:
   # -- Apache APISIX service type for user access itself
-  type: LoadBalancer
+  type: NodePort
   # -- Setting how the Service route external traffic
   # If you want to keep the client source IP, you can set this to Local.
 
@@ -171,12 +171,12 @@ service:
   # type: LoadBalancer
   # annotations:
   #   service.beta.kubernetes.io/aws-load-balancer-type: nlb
-  externalIPs:
-    - 172.30.170.97
+  externalIPs: []
   # -- Apache APISIX service settings for http
   http:
     enabled: true
     servicePort: 80
+    nodePort: 32080
     containerPort: 9080
     # -- Support multiple http ports, See [Configuration](https://github.com/apache/apisix/blob/0bc65ea9acd726f79f80ae0abd8f50b7eb172e3d/conf/config-default.yaml#L24)
     additionalContainerPorts: []
@@ -188,7 +188,7 @@ service:
   # -- Apache APISIX service settings for tls
   tls:
     servicePort: 443
-    # nodePort: 4443
+    nodePort: 32443
 
   # -- Apache APISIX service settings for stream. L4 proxy (TCP/UDP)
   stream:
@@ -206,22 +206,22 @@ service:
 
 # -- Using ingress access Apache APISIX service
 ingress:
-  enabled: false
+  enabled: true
   # -- (number) Service port to send traffic. Defaults to `service.http.servicePort`.
   servicePort:
   # -- Ingress annotations
   annotations:
     kubernetes.io/ingress.class: nginx
-    #cert-manager.io/cluster-issuer: letsencrypt-prod
-    #ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
     nginx.ingress.kubernetes.io/proxy-buffers: "4"
   hosts:
-    - host: apisix.eoepca.k8s.net.werum
+    - name: iam-auth.develop.eoepca.org
       paths:
         - /
-    - host: demo.172.30.147.2.nip.io
+    - name: iam-opa.develop.eoepca.org
       paths:
         - /
   tls: []
@@ -315,7 +315,7 @@ apisix:
           path: ""
 
   ssl:
-    enabled: true
+    enabled: false
     containerPort: 9443
     # -- Support multiple https ports, See [Configuration](https://github.com/apache/apisix/blob/0bc65ea9acd726f79f80ae0abd8f50b7eb172e3d/conf/config-default.yaml#L99)
     additionalContainerPorts: []
@@ -634,6 +634,11 @@ etcd:
 
   replicaCount: 3
 
+  # Added: Set Cluster-specific storage class
+  persistence:
+    storageClass: managed-nfs-storage-retain
+    size: 8Gi
+
 dashboard:
   enabled: false
   config:
@@ -655,4 +660,4 @@ ingress-controller:
   config:
     apisix:
       adminAPIVersion: "v3"
-
+      serviceNamespace: iam
