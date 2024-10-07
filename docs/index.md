@@ -10,7 +10,7 @@ The documentation for the `Identity and Access Management` building block is org
 * **Design**<br>
   Description of the BB design - including its subcomponent architecture and interfaces.
 * **Administration**<br>
-  Configuration and maintenance of the BB.
+  Description of the installation and configuration and maintenance of the BB.
 * **Usage**<br>
   How-tos and example configurations for usage by example.
 
@@ -27,7 +27,7 @@ Summary of the capabilities:
 - Provide Single Sign-on
 - Support Identity Federations
 - Fine grained policy enforcement
-- Integration of existing PEPs and IAMs 
+- Integration of existing PEP's and IAM's 
 - Provision of a PEP template
 
 For authentication, the IAM BB provides a central identity provider (IdP) that integrates

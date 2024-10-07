@@ -1,0 +1,12 @@
+# Example wildcard certificate configuration for APISIX ingress
+apiVersion: apisix.apache.org/v2
+kind: ApisixTls
+metadata:
+  name: apx-all-tls
+  namespace: iam
+spec:
+  hosts:
+    - "*.apx.develop.eoepca.org"
+  secret:
+    name: apx-all-tls
+    namespace: iam

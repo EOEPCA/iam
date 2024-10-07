@@ -117,6 +117,7 @@ There are three combinable ways to secure OPA's API:
    It is provided to OPA as part of its initial configuration, so that it
    is available, before the OPAL client pushes further rules into OPA.
 3. Authentication: OPA supports two authentication methods.
+
    * Token-based authentication simply allows the client to present a
      bearer token, which OPA passes to the authorization policy as an input
      parameter. The policy rule may evaluate the token and base its decisions
@@ -160,6 +161,7 @@ cases:
 If the request does not include a token, only rule evaluation and
 querying are allowed. Direct evaluation of system rules is rejected.
 Allowed operations are:
+
 * GET / (query form)
 * POST /v1/query (query form submission)
 * GET/POST /v1/data/** (direct policy evaluation via data API)

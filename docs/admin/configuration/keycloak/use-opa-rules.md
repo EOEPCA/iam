@@ -21,8 +21,6 @@ If using the Keycloak OPA Connector Plugin, after clicking on "Create client pol
 
 For additional information about the Keycloak OPA Policy Type, see the documentation of the [Keycloak OPA Connector Plugin](https://github.com/EOEPCA/keycloak-opa-plugin).
 
-
-
 ## Use the created OPA policy
 
 For using created (OPA) policies, you need to create Resources and Permissions under the "Authorization" tab and assign them to the policy.
