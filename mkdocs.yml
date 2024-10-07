@@ -16,10 +16,10 @@ nav:
       - Use Cases:
         - design/use-cases/use-cases.md
       - Components:
-        - design/policy-enforcement/apisix.md
-        - design/auth-component/keycloak.md
-        - design/auth-component/keycloak-opa-plugin.md
-        - design/policy-component/opal-opa.md
+        - design/components/policy-enforcement/apisix.md
+        - design/components/auth-component/keycloak.md
+        - design/components/auth-component/keycloak-opa-plugin.md
+        - design/components/policy-component/opal-opa.md
       - API:
         - api/opa-policy-api.md
     - Administration:
