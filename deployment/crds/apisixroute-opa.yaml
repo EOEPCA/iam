@@ -1,35 +1,36 @@
 apiVersion: apisix.apache.org/v2
 kind: ApisixRoute
 metadata:
-  name: opa
+  name: opa-route
 spec:
   http:
-  - name: opa
+  - name: opa-apx
     match:
       hosts:
-      - opa.172.30.170.97.nip.io
+        - iam-opa.apx.develop.eoepca.org
       paths:
-      - /*
+        - /*
     backends:
-    - serviceName: opal-client
-      servicePort: 8181
+      - serviceName: iam-opal-opal-client
+        servicePort: 8181
     plugins:
-    - name: openid-connect
-      enable: true
-      config:
-        client_id: "opa"
-        client_secret: "pbTYupZ8OLktAwsbRz6QVoHNEtFH9Uwx"
-        #bearer_only: true
-        #realm: "eoepca"
-        #redirect_uri: "http://opa.172.30.170.97.nip.io/"
-        access_token_in_authorization_header: true
-        discovery: "http://keycloak.172.30.170.97.nip.io/realms/eoepca/.well-known/openid-configuration"
-    - name: authz-keycloak
-      enable: true
-      config:
-        client_id: "opa"
-        client_secret: "pbTYupZ8OLktAwsbRz6QVoHNEtFH9Uwx"
-        discovery: "http://keycloak.172.30.170.97.nip.io/realms/eoepca/.well-known/uma2-configuration"
-        #permissions: "Resource all"
-        lazy_load_paths: true
-        ssl_verify: false
+      - name: openid-connect
+        enable: true
+        config:
+          client_id: "opa"
+          client_secret: "..."
+          access_token_in_authorization_header: true
+          discovery: "https://iam-auth.apx.develop.eoepca.org/realms/eoepca/.well-known/openid-configuration"
+        # Alternative way to specify sensitive information like the client secret:
+        #refSecret: opa-route
+      - name: authz-keycloak
+        enable: true
+        config:
+          client_id: "opa"
+          client_secret: "..."
+          discovery: "https://iam-auth.apx.develop.eoepca.org/realms/eoepca/.well-known/uma2-configuration"
+          #permissions: "Resource all"
+          lazy_load_paths: true
+          # ssl_verify may have to be set to false in a test environment. Not recommended for production.
+          ssl_verify: false
+        #refSecret: opa-route
