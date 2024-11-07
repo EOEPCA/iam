@@ -4,7 +4,7 @@ Policy enforcement describes the process of enforcing a policy by routing all tr
 As all traffic to and from the BB must go through the PEP, the PEP can inspect it, redirect requests and effectively block unauthorized requests.
 The PEP is part of or closely tied to the BB or the component it is protecting to make sure that no traffic can circumvent it, which is not easily done from outside the protected environment. This implies that the IAM BB is not able to provide a central PEP that other BBs could use, but it can provide central interfaces that the PEPs can use to outsource tasks related to authentication and authorization.
 
-For the IAM BB, the APISIX Ingress Controller along with the APISIX API Gateway is using and act as reverse proxy because it is better optimized for traffic control, low latencies and has great support for authentication and authorization (including a dedicated interface module for OPA) and supports separation of authentication and authorization. So it provides some more flexibility regarding IAM than most other solutions.
+For the IAM BB, the APISIX Ingress Controller is combined with an APISIX API Gateway, which is optimized for traffic control, low latencies and has great support for authentication and authorization (including a dedicated interface module for OPA) and supports separation of authentication and authorization.
 
 ## APISIX
 
