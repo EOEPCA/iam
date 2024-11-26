@@ -1,0 +1,37 @@
+# Note: Only identity-api is installed.
+# All other services are disabled.
+identity-postgres:
+  enabled: false
+#  deployment:
+#    image:
+#      repository: postgres
+#      pullPolicy: IfNotPresent
+identity-keycloak:
+  enabled: false
+#  deployment:
+#    image:
+#      repository: quay.io/keycloak/keycloak
+#      pullPolicy: IfNotPresent
+identity-api:
+  enabled: true
+  secrets:
+    # Values for secret 'identity-api'
+    # Note - if ommitted, these can instead be set by creating the secret independently
+    # e.g. as a SealedSecret via GitOps.
+    adminPassword: "changeme"
+  deployment:
+    # Config values that can be passed via env vars
+    extraEnv:
+      - name: AUTH_SERVER_URL  # see configMap.authServerUrl instead
+        value: https://iam-auth.apx.develop.eoepca.org
+        # value: http://keycloak.iam.svc.cluster.local
+      - name: ADMIN_USERNAME
+        value: "admin"
+      - name: REALM
+        value: "eoepca"
+      # - name: VERSION
+      #   value: v1.0.0
+      - name: LOG_LEVEL
+        value: DEBUG
+identity-gatekeeper:
+  enabled: false
