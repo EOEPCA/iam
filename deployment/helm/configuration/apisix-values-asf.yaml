@@ -218,10 +218,10 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
     nginx.ingress.kubernetes.io/proxy-buffers: "4"
   hosts:
-    - name: iam-auth.develop.eoepca.org
+    - host: iam-auth.develop.eoepca.org
       paths:
         - /
-    - name: iam-opa.develop.eoepca.org
+    - host: iam-opa.develop.eoepca.org
       paths:
         - /
   tls: []
