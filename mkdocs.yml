@@ -26,6 +26,7 @@ nav:
       - Installation:
         - admin/installation/installation.md
       - Configuration:
+        - admin/configuration/apisix/ingress-configuration.md
         - admin/configuration/keycloak/keycloak-configuration.md
         - admin/configuration/keycloak/use-opa-rules.md
         - admin/configuration/github-idp/github-setup-idp.md

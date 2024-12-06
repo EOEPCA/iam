@@ -1,0 +1,16 @@
+# Example wildcard certificate configuration for APISIX ingress
+# Note that this refers to a secret that must either be created
+# manually or through a Certificate object. The latter is useful
+# if the certificate shall be obtained automatically through
+# an issuer.
+apiVersion: apisix.apache.org/v2
+kind: ApisixTls
+metadata:
+  name: example-wildcard-tls
+  namespace: ingress-apisix
+spec:
+  hosts:
+    - "*.apx.develop.eoepca.org"
+  secret:
+    name: example-wildcard-tls
+    namespace: iam

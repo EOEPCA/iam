@@ -1,0 +1,20 @@
+# Example route definition for a service that does not require
+# authentication or authorization at all or handles both itself
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: simple-route
+  namespace: example-service-ns
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  http:
+  - name: simple-http-route
+    backends:
+    - serviceName: example-service
+      servicePort: 80
+    match:
+      hosts:
+      - simple-example.apx.develop.eoepca.org
+      paths:
+      - "/*"
