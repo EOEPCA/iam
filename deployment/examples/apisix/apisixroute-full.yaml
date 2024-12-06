@@ -1,0 +1,57 @@
+# Example route definition for a service that delegates both
+# authentication and authorization to APISIX.
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: full-route
+  namespace: example-service-ns
+spec:
+  http:
+  - name: full-http-route
+    match:
+      hosts:
+        - full-example.apx.develop.eoepca.org
+      paths:
+        - /*
+    backends:
+      - serviceName: example-service
+        servicePort: 80
+    plugins:
+      - name: openid-connect
+        enable: true
+        config:
+          client_id: "example-client"
+          client_secret: "example-client-secret"
+          access_token_in_authorization_header: true
+          discovery: "https://iam-auth.apx.develop.eoepca.org/realms/eoepca/.well-known/openid-configuration"
+        # refSecret is an alternative way to specify sensitive information like the client secret.
+        # It is recommended to create a (sealed) secret with the same name as the route and reference it here.
+        # The secret should contain the client credentials (client_id and client_secret), which may
+        # then be omitted above.
+        #refSecret: full-route
+      - name: authz-keycloak
+        enable: true
+        config:
+          client_id: "example-client"
+          client_secret: "example-client-secret"
+          discovery: "https://iam-auth.apx.develop.eoepca.org/realms/eoepca/.well-known/uma2-configuration"
+          lazy_load_paths: true
+          # ssl_verify may have to be set to false in a test environment. Not recommended for production.
+          ssl_verify: false
+        # refSecret: see description above
+        #refSecret: full-route
+---
+# Example secret for the route definition above.
+# This secret may be referenced via refSecret instead of specifying
+# the client credentials directly in the route definition.
+# The secret should be created either manually or through a sealed secret.
+apiVersion: v1
+data:
+  client_id: "ZXhhbXBsZS1jbGllbnQ="
+  client_secret: "ZXhhbXBsZS1jbGllbnQtc2VjcmV0"
+kind: Secret
+metadata:
+  # Secret name should match route name.
+  name: full-route
+  namespace: example-service-ns
+type: Opaque
