@@ -19,9 +19,13 @@ spec:
       - name: openid-connect
         enable: true
         config:
+{{- if .Values.iam.identityApi.clientId }}
           client_id: {{ .Values.iam.identityApi.clientId | quote }}
+{{- end }}
 {{- if .Values.iam.identityApi.clientSecret }}
+{{- if not .Values.iam.identityApi.clientSecretRef }}
           client_secret: {{ .Values.iam.identityApi.clientSecret | quote }}
+{{- end }}
 {{- end }}
           access_token_in_authorization_header: true
           discovery: "{{ .Values.iam.keycloak.url }}/realms/eoepca/.well-known/openid-configuration"
@@ -31,9 +35,13 @@ spec:
       - name: authz-keycloak
         enable: true
         config:
+{{- if .Values.iam.identityApi.clientId }}
           client_id: {{ .Values.iam.identityApi.clientId | quote }}
+{{- end }}
 {{- if .Values.iam.identityApi.clientSecret }}
+{{- if not .Values.iam.identityApi.clientSecretRef }}
           client_secret: {{ .Values.iam.identityApi.clientSecret | quote }}
+{{- end }}
 {{- end }}
           discovery: "{{ .Values.iam.keycloak.url }}/realms/eoepca/.well-known/uma2-configuration"
           #permissions: "Resource all"
@@ -55,9 +63,13 @@ spec:
       - name: openid-connect
         enable: false
         config:
+{{- if .Values.iam.identityApi.clientId }}
           client_id: {{ .Values.iam.identityApi.clientId | quote }}
+{{- end }}
 {{- if .Values.iam.identityApi.clientSecret }}
+{{- if not .Values.iam.identityApi.clientSecretRef }}
           client_secret: {{ .Values.iam.identityApi.clientSecret | quote }}
+{{- end }}
 {{- end }}
           access_token_in_authorization_header: true
           discovery: "{{ .Values.iam.keycloak.url }}/realms/eoepca/.well-known/openid-configuration"
@@ -67,9 +79,13 @@ spec:
       - name: authz-keycloak
         enable: true
         config:
+{{- if .Values.iam.identityApi.clientId }}
           client_id: {{ .Values.iam.identityApi.clientId | quote }}
+{{- end }}
 {{- if .Values.iam.identityApi.clientSecret }}
+{{- if not .Values.iam.identityApi.clientSecretRef }}
           client_secret: {{ .Values.iam.identityApi.clientSecret | quote }}
+{{- end }}
 {{- end }}
           discovery: "{{ .Values.iam.keycloak.url }}/realms/eoepca/.well-known/uma2-configuration"
           #permissions: "Resource all"

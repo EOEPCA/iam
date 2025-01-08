@@ -10,6 +10,7 @@
 # sections below.
 iam:
   keycloak:
+    enabled: &keycloakEnabled true
     # "Official" Keycloak URL
     url: &kcurl https://iam-auth.apx.develop.eoepca.org
     hosts:
@@ -23,11 +24,15 @@ iam:
       - iam-opa.apx.develop.eoepca.org
     paths:
       - /*
+    # Client credentials:
+    # clientId is mandatory if clientSecret is specified or clientSecretRef is *not* specified.
+    # Note: If both clientSecret and clientSecretRef are specified, a secret is generated
+    # automatically, and the client secret is omitted from the route definition.
     clientId: opa
     # clientSecret: Client secret as plain text
     #clientSecret:
-    # clientSecretRef: Name of an existing secret that contains the client secret and maybe further values
-    clientSecretRef: opa-route
+    # clientSecretRef: Name of an existing secret that contains the client secret and maybe further values like the client ID
+    #clientSecretRef: opa-route
   identityApi:
     enabled: &identityApiEnabled true
     createRoute: true
@@ -36,23 +41,27 @@ iam:
     paths:
       - /*
     docsPath: /docs/*
+    # Client credentials:
+    # clientId is mandatory if clientSecret is specified or clientSecretRef is *not* specified.
+    # Note: If both clientSecret and clientSecretRef are specified, a secret is generated
+    # automatically, and the client secret is omitted from the route definition.
     clientId: identity-api
     # clientSecret: Client secret as plain text
     #clientSecret:
     # clientSecretRef: Name of an existing secret that contains the client secret and maybe further values
-    clientSecretRef: identity-api-route
+    #clientSecretRef: identity-api-route
   apisix:
     enabled: &apisixEnabled true
 
 # ----
 
 keycloak:
-  enabled: true
+  enabled: *keycloakEnabled
   image:
     # The following settings must point to a custom Keycloak image that includes the Keycloak OPA Plugin.
     registry: byud8gih.c1.de1.container-registry.ovh.net
     repository: eoepca/keycloak-with-opa-plugin
-    tag: 0.3
+    tag: 0.3.1
     digest: ""
     pullPolicy: IfNotPresent
   auth:
@@ -298,6 +307,9 @@ apisix:
       enabled: false
       existingCASecret: "<secret name>"
       certCAFilename: "ca.crt"
+    pluginAttrs:
+      redirect:
+        https_port: 443
   ingress-controller:
     enabled: true
 

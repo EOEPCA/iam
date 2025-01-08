@@ -17,9 +17,13 @@ spec:
       - name: openid-connect
         enable: true
         config:
+{{- if .Values.iam.opa.clientId }}
           client_id: {{ .Values.iam.opa.clientId | quote }}
+{{- end }}
 {{- if .Values.iam.opa.clientSecret }}
+{{- if not .Values.iam.opa.clientSecretRef }}
           client_secret: {{ .Values.iam.opa.clientSecret | quote }}
+{{- end }}
 {{- end }}
           access_token_in_authorization_header: true
           discovery: "{{ .Values.iam.keycloak.url }}/realms/eoepca/.well-known/openid-configuration"
@@ -29,9 +33,13 @@ spec:
       - name: authz-keycloak
         enable: true
         config:
+{{- if .Values.iam.opa.clientId }}
           client_id: {{ .Values.iam.opa.clientId | quote }}
+{{- end }}
 {{- if .Values.iam.opa.clientSecret }}
+{{- if not .Values.iam.opa.clientSecretRef }}
           client_secret: {{ .Values.iam.opa.clientSecret | quote }}
+{{- end }}
 {{- end }}
           discovery: "{{ .Values.iam.keycloak.url }}/realms/eoepca/.well-known/uma2-configuration"
           #permissions: "Resource all"
