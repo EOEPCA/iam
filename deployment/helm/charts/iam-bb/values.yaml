@@ -61,7 +61,7 @@ keycloak:
     # The following settings must point to a custom Keycloak image that includes the Keycloak OPA Plugin.
     registry: byud8gih.c1.de1.container-registry.ovh.net
     repository: eoepca/keycloak-with-opa-plugin
-    tag: 0.3.1
+    tag: 0.4.0
     digest: ""
     pullPolicy: IfNotPresent
   auth:
