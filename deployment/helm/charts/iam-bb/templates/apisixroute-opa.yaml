@@ -11,7 +11,8 @@ spec:
       hosts: {{- .Values.iam.opa.hosts | toYaml | nindent 6 }}
       paths: {{- .Values.iam.opa.paths | toYaml | nindent 6 }}
     backends:
-      - serviceName: iam-opal-client
+      - serviceName: {{ printf "%s-opal-client" .Release.Name }}
+#      - serviceName: iam-opal-client
         servicePort: 8181
     plugins:
       - name: openid-connect

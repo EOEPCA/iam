@@ -1,10 +1,8 @@
 {{ if .Values.keycloak.enabled -}}
-# Example route definition for Keycloak
 apiVersion: apisix.apache.org/v2
 kind: ApisixRoute
 metadata:
   name: keycloak-route
-  #namespace: iam
   annotations:
     ingress.kubernetes.io/ssl-redirect: "true"
 spec:
