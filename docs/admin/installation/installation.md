@@ -1,10 +1,16 @@
 # Installation
 
+This chapter describes the deployment and initial configuration
+of the Identity and Access Management (IAM) building block.
+
 ## Introduction
+
+This section provides an introduction into the components and
+deployment of the IAM BB.
 
 ### Components
 
-The IAM BB consists of three components that can be deployed and
+The IAM BB consists of three (optionally four) components that can be deployed and
 configured independently.
 
 The core component of the IAM BB is a Keycloak server that is
@@ -28,40 +34,69 @@ for the IAM BB itself and can also be used as a PEP for other BBs that
 reside on the same or another cluster. It is installed through the native
 Apache [Helm chart](https://github.com/apache/apisix-helm-chart/).
 
+As an optional fourth component, the Identity API has been added to the
+IAM BB. However, it is not clear yet if the Identity API will remain
+part of the IAM BB or if it shall be removed again. The Identity API is
+installed using the
+[Identity Service Helm chart](https://github.com/EOEPCA/helm-charts-dev/tree/develop/charts/identity-service).
+
 ### Overall Deployment
 
-The components are currently glued together via an ArgoCD App of Apps.
-The main app still contains some objects (like certificates
-and ingress routes) that should actually be part of the individual
-components or an overall setup. This will be cleaned up as the IAM BB
-evolves. It is also planned to provide a Helm chart that wraps
-Keycloak and OPAL. APISIX, however, will probably remain separate,
-because it is rather an infrastructure service than an integrated part
-of the IAM BB.
+In the [reference environment](https://github.com/EOEPCA/eoepca-plus),
+the components are currently installed separately via the IAM BB Helm
+chart and glued together via an ArgoCD App of Apps. This allows
+maintaining the components separately in ArgoCD.
 
-The ArgoCD-based configuration for the test environment can be found
-[here](https://github.com/EOEPCA/eoepca-plus/tree/deploy-develop/argocd/eoepca/iam).
+In a typical (non-ArgoCD) environment, it is recommended to
+deploy the IAM at once, except for APISIX, which should be deployed
+upfront as an infrastructure component.
+
+The IAM BB Helm chart also performs some basic configuration on the IAM.
+However, the
+[IAM reference deployment](https://github.com/EOEPCA/eoepca-plus/tree/deploy-develop/argocd/eoepca/iam)
+still contains some objects (like certificates and sealed secrets) that
+constitute a project-dependent overall setup and are therefore not handled
+by the Helm chart. These objects should be reviewed and either adopted or
+replaced with project-specific setup.  
 
 ## Deployment via Helm
 
+This section describes how to install the components of the IAM BB
+using Helm. 
+
 ### Preparation
 
-All IAM components presently use standard Helm charts in combination
-with custom `values.yaml` files that configure them for the IAM BB.
-The following `values.yaml` files are supplied:
+The standard way of installing the IAM is by using the
+[`iam-bb` Helm chart](https://github.com/EOEPCA/helm-charts-dev/tree/develop/charts/iam-bb).
+Before deploying, the `values.yaml` file of the Helm chart has to be
+customized. Common settings can be made in the `iam` section.
+They are propagated to the individual sections through yaml anchors.
+The individual sections must be kept in order for this to work properly.
+
+Some settings can only be modified within the individual sections that
+correspond to the subcharts used by the `iam-bb` Helm chart. These
+sections are present in the standard `values.yaml` file, but limited
+to the settings that are most commonly changed. So in rare cases it
+may be necessary to take over and adapt settings from the original
+`values.yaml` files of the subcharts.
+
+For reference, pre-configured `values.yaml` files for the subcharts
+can be found [here](https://github.com/EOEPCA/iam/tree/main/deployment/helm/configuration).
+However, please note that these example files are not guaranteed to
+be up to date. The following `values.yaml` files are supplied:
 ```
 keycloak-values.yaml # values for Keycloak
 opal-values.yaml # values for OPAL and OPA
-apisix-values-asf.yaml # values for APISIX (using Apache Helm chart)
-apisix-values-bitnami.yaml # values for APISIX (for Bitnami Helm chart - unused)
+values-identity-service.yaml # values for Identity API
+apisix-values-asf.yaml # values for APISIX (using Apache Helm chart - recommended)
+apisix-values-bitnami.yaml # values for APISIX (for Bitnami Helm chart - deprecated)
 ```
-They can be found [here](https://github.com/EOEPCA/iam/tree/main/deployment/helm/configuration).
-
-The `values.yaml` files are preconfigured for the EOEPCA+ test
-environment and may have to be adapted for the target environment
+These example `values.yaml` files are preconfigured for the EOEPCA+ reference
+environment. They (or the corresponding entries in the `values.yaml` file
+of the `iam-bb` Helm chart) may have to be adapted to the target environment
 before installing. This especially applies to the following entries:
 
-* The test cluster uses a non-standard storage class, which should
+* The reference cluster uses a non-standard storage class, which may have to
   be adjusted. This applies to Keycloak and APISIX.
   ```
   # Keycloak
@@ -91,6 +126,8 @@ before installing. This especially applies to the following entries:
 * For Keycloak, the following environment variables may have to be
   adapted. `KC_SPI_POLICY_OPA_OPA_BASE_URI` may have to be changed
   if the name of the OPAL client service deviates from the default.
+  Note that the service name depends on the release name and defaults
+  to the release name with `-opal-client` appended.
   `KC_HOSTNAME_URL` and `KC_HOSTNAME_ADMIN_URL` should be changed
   to the official external URL of the Keycloak service.
   ```
@@ -121,15 +158,15 @@ before installing. This especially applies to the following entries:
   and reinstalled later without deleting the underlying PVC.
   Therefore it is recommended to set the password to a fixed value.
 
-* OPAL is configured to use a default repository that contains some
-  dummy rules. This should work as an initial setup for testing, but
-  may have to be changed to a another repository in order to allow
-  adding custom rules.
+* OPAL is preconfigured to use the `iam-policies` repository that contains
+  a reasonable set of standard rules. This works as an initial setup
+  for testing and evaluating EOEPCA, but may have to be changed to a
+  project-specific repository in order to allow adding custom rules.
   ```
   server:
-    policyRepoUrl: https://github.com/EOEPCA/keycloak-opa-plugin.git/
+    policyRepoUrl: https://github.com/EOEPCA/iam-policies.git
     policyRepoSshKey: null
-    policyRepoMainBranch: opatest
+    policyRepoMainBranch: main
   ```
 
 * OPAL: For a production setup, it is recommended to review and adapt
@@ -145,25 +182,28 @@ before installing. This especially applies to the following entries:
         [...]
   ```
 
-* APISIX: The test configuration defines an ingress that allows accessing
-  APISIX through an existing NGinX ingress controller. This should be
+* APISIX: The reference configuration defines an ingress that allows accessing
+  APISIX through an existing NGinX ingress controller. This may have to be
   disabled if not required.
   ```
   ingress:
     enabled: true
   ```
+  This is not necessary if APISIX is deployed using the `iam-bb` Helm chart.
 
 * Currently APISIX is deployed in the "iam" namespace by default. If it is
-  deployed in another namespace, the following setting needs to be adapted:
+  deployed in another namespace, the following setting may have to be adapted:
   ```
   ingress-controller:
     config:
       apisix:
         serviceNamespace: iam
   ```
+  This is not necessary if APISIX is deployed using the `iam-bb` Helm chart.
 
-* APISIX: A NodePort service is configured as the standard ingress entry
-  point. This may have to be adapted.
+* APISIX: In the reference system, a NodePort service is configured as the
+  standard ingress entry point. The `iam-bb` Helm chart does not have a
+  default configuration for the entry point. This may have to be adapted.
   ```
   service:
     type: NodePort
@@ -176,18 +216,53 @@ before installing. This especially applies to the following entries:
       nodePort: 32443
   ```
 
-### Keycloak
+### IAM-BB Helm Chart
 
-**TODO: Use same Helm command syntax as for OPAL and APISIX**
+The standard way of installing the IAM BB is through the `iam-bb`
+[Helm chart](https://github.com/EOEPCA/helm-charts-dev/tree/develop/charts/iam-bb).
+It allows installing all IAM BB components at once or an arbitrary subset
+of them, just as required. It can also create some basic configuration like
+routes automatically if desired.
+
+The IAM BB Helm chart includes the IAM core components (Keycloak and OPAL)
+as well as the optional Identity API and the APISIX ingress controller.
+
+It is recommended to install the IAM BB in two steps. The APISIX ingress
+controller is an important infrastructure component and should therefore
+be installed before the IAM BB core components and any other components
+that depend on it. The remaining IAM components (Keycloak, OPAL and optionally
+Identity API) should be installed together in a second step. As a convention,
+it is recommended to use the namespace `ingress-apisix` for APISIX and the
+namespace `iam` for the IAM itself.
+
+If a dedicated cluster is available for the IAM, it may also be installed
+in a single step. APISIX may then also reside in the `iam` namespace.
+
+The `iam-bb` Helm chart can also be used to install APISIX on other clusters
+where it shall be used as an ingress controller and PEP in conjunction with
+the IAM. In this case, it should use the `ingress-apisix` namespace.
+
+### Alternative: Individual Helm Charts
+
+Alternatively the IAM BB can be installed using the Helm charts of the
+components of the IAM BB. Additional setup steps like creation of routes
+and global configuration that are normally done by the `iam-bb` Helm chart
+must be performed manually in this case.
+
+This way of installing the IAM BB is not recommended. It is described here
+primarily to provide some additional insights into the installation process. 
+
+#### Keycloak Helm Chart
 
 The Keycloak component can be installed as follows:
 
 ```
-helm install iam-keycloak oci://registry-1.docker.io/bitnamicharts/keycloak --version 21.4.4 \
-  -n iam -f keycloak-values.yaml
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm install -f keycloak-values.yaml -n iam iam-keycloak bitnami/keycloak --version 21.4.4
 ```
 
-### OPAL
+#### OPAL
 
 The OPAL component can be installed as follows:
 
@@ -197,7 +272,17 @@ helm repo update
 helm install -f opal-values.yaml -n iam iam-opal permitio/opal --version 0.0.28
 ```
 
-### APISIX
+#### Identity API
+
+The Identity API component can be installed as follows:
+
+```
+helm repo add eoepca https://eoepca.github.io/helm-charts
+helm repo update
+helm install -f identity-service-values.yaml -n iam identity-service eoepca/identity-service
+```
+
+#### APISIX
 
 The APISIX component can be installed as follows:
 
@@ -211,7 +296,21 @@ Note that APISIX can also be installed as an ingress controller
 and PEP on another cluster. In this case, a different namespace (default:
 `ingress-apisix`) should be used.
 
-### Further Setup
+#### Prepared Scripts
+
+The [IAM repository](https://github.com/EOEPCA/iam) contains
+simple prepared installation and deinstallation
+[scripts](https://github.com/EOEPCA/iam/tree/main/deployment/scripts)
+that encapsulate the Helm commands. The location of the
+`values.yaml` files can be configured through environment variables.
+For other adaptations (like non-standard namespaces), the scripts
+must be adapted manually.
+
+The scripts are mostly useful for test environments where IAM
+components need to be updated or deployed from scratch quite
+frequently.
+
+## Further Setup
 
 In order to make the IAM BB accessible from outside the cluster,
 appropriate routes (aka ingresses) and TLS certificates need to
@@ -224,18 +323,29 @@ configured using standard Ingress objects. Furthermore, they
 allow separating the TLS configuration from the actual route
 definitions.
 
-#### TLS Configuiration
+Note that the `iam-bb` Helm chart can create the routes for Keycloak,
+OPA and Identity API automatically. However, the TLS configuration
+must still be provided separately, because it heavily depends on
+the environment.
+
+Finally, some further manual configuration need to be done in Keycloak:
+* Create realm (mandatory)
+* Create OPA client (required for OPA route)
+* Create Identity API client (required for Identity API route)
+* Configure GitHub as IdP (optional)
+
+### TLS Configuration
 
 The TLS configuration depends on the issuers that are available in
 your cluster. It requires a `Certificate` object and an `ApisixTls`
-object per certificate. In the test environment, a global wildcard
+object per certificate. In the reference environment, a global wildcard
 certificate is used. This makes all routes within the scope of the
 certificate support TLS without any further configuration.
 Note that the separate `Certificate` object is needed, because Cert
-Manager does not seem to honour `cert-manager.io/cluster-issuer`
-annotations on an `ApisixTls` object.
+Manager does not honour `cert-manager.io/cluster-issuer` annotations
+on an `ApisixTls` object.
 
-Example from the test environment:
+Example from the reference environment:
 
 ```
 apiVersion: cert-manager.io/v1
@@ -270,16 +380,19 @@ spec:
     namespace: iam
 ```
 
-#### Route Configuration
+### Route Configuration
 
-A route need to be configured at least for Keycloak.
+A route needs to be configured at least for Keycloak.
 Optionally, further routes can be added for Open Policy Agent (OPA)
 and any other services that need to be accessible from outside the
-cluster.
+cluster. The `iam-bb` Helm chart does this automatically based on
+the settings made in the `values.yaml` file.
 
-The following is an example route definition for Keycloak. It includes
-a workaround for a potential issue that causes redirects to address a
-container port (9443) instead of the official HTTPS port (443).
+The following is an example route definition for Keycloak. For information,
+it still includes a workaround for a potential issue that causes redirects to
+address a container port (9443) instead of the official HTTPS port (443).
+Note that this workaround has meanwhile become part of the global IAM
+setup and has therefore been commented out.
 
 ```
 apiVersion: apisix.apache.org/v2
@@ -302,14 +415,15 @@ spec:
       paths:
       - /*
     name: keycloak
-    plugins:
-      # Possible workaround for redirect-to-9443 problem that also works for HTTP
-      - name: serverless-pre-function
-        enable: true
-        config:
-          phase: "rewrite"
-          functions:
-            - "return function(conf, ctx) if tonumber(ngx.var.var_x_forwarded_port) > 9000 then ngx.var.var_x_forwarded_port = ngx.var.var_x_forwarded_port - 9000 end end"
+    # This section has become obsolete:
+    #plugins:
+    #  # Possible workaround for redirect-to-9443 problem that also works for HTTP
+    #  - name: serverless-pre-function
+    #    enable: true
+    #    config:
+    #      phase: "rewrite"
+    #      functions:
+    #        - "return function(conf, ctx) if tonumber(ngx.var.var_x_forwarded_port) > 9000 then ngx.var.var_x_forwarded_port = ngx.var.var_x_forwarded_port - 9000 end end"
 ```
 
 The following route is an example route for OPA. It includes
@@ -359,5 +473,72 @@ spec:
 Note that any portions of the plugin configurations can be stored in a secret.
 This allows hiding sensitive information like the client secret from the
 route definition. More information can be found in the
-[APISIX documentation](https://apisix.apache.org/docs/ingress-controller/concepts/apisix_route/#config-with-secretref).
+[APISIX Documentation](https://apisix.apache.org/docs/ingress-controller/concepts/apisix_route/#config-with-secretref)
+and the [Ingress Configuration Guide](https://eoepca.readthedocs.io/projects/iam/en/latest/admin/configuration/apisix/ingress-configuration/).
 
+## Keycloak Configuration
+
+Finally, some manual configuration need to be done in Keycloak.
+The required steps are described in the following subsections.
+
+### Create realm
+
+A manual procedure for creating and configuring the `eoepca` realm
+is described in [this guide](https://eoepca.readthedocs.io/projects/iam/en/latest/admin/configuration/keycloak/keycloak-configuration/).
+
+A `curl`-based alternative is described in the
+[IAM Deployment Guide](https://eoepca.readthedocs.io/projects/deploy/en/2.0-beta/building-blocks/iam/#5-create-eoepca-keycloak-realm).
+
+### Create OPA client
+
+Using the Keycloak Admin UI, create a client with the following settings:
+* Client ID: "opa"
+* Root URL: External OPA base URL as configured in `values.yaml`
+* Valid redirect URIs: "/*"
+* Web origins: "/*"
+* Home URL and Admin URL may be set to the same value as Root URL
+* Client authentication: On
+* Authentication flow: Standard flow + Service account roles
+* All other settings may be left at their default values or set as desired.
+
+Take over the generated client secret from the Keycloak UI to the
+OPA route secret.
+
+A `curl`-based alternative is described in the
+[IAM Deployment Guide](https://eoepca.readthedocs.io/projects/deploy/en/2.0-beta/building-blocks/iam/#a-create-keycloak-client-for-opa).
+
+The advantage of the latter solution is that the client secret can be set
+to a pregenerated value when creating the client. This saves the
+effort of updating the OPA route secret manually.
+
+### Identity API client
+
+Using the Keycloak Admin UI, create a client with the following settings:
+* Client ID: "identity-api"
+* Root URL: External Identity API base URL as configured in `values.yaml`
+* Valid redirect URIs: "/*"
+* Web origins: "/*"
+* Home URL and Admin URL may be set to the same value as Root URL
+* Client authentication: On
+* Authorization: On
+* Authentication flow: Standard flow + Service account roles
+* Create a policy that restricts access. Only trusted users should
+  have access to the Identity API
+* Update the default permission to refer to this policy
+* All other settings may be left at their default values or set as desired.
+
+Take over the generated client secret from the Keycloak UI to the
+Identity API route secret.
+
+Alternatively the client can be created using the `curl`-based approach
+as described for the OPA client.
+
+### Configure GitHub as IdP
+
+A manual procedure for configuring GitHub as an external Identity
+Provider for the IAM is described
+[here](https://eoepca.readthedocs.io/projects/iam/en/latest/admin/configuration/github-idp/github-setup-idp/).
+The guide may also be used for integrating with other external IdPs.
+
+A `curl`-based alternative is described in the
+[IAM Deployment Guide](https://eoepca.readthedocs.io/projects/deploy/en/2.0-beta/building-blocks/iam/#7-integrate-github-as-external-identity-provider)
