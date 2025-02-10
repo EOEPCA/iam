@@ -24,11 +24,11 @@ spec:
           client_secret: "example-client-secret"
           access_token_in_authorization_header: true
           discovery: "https://iam-auth.apx.develop.eoepca.org/realms/eoepca/.well-known/openid-configuration"
-        # refSecret is an alternative way to specify sensitive information like the client secret.
+        # secretRef is an alternative way to specify sensitive information like the client secret.
         # It is recommended to create a (sealed) secret with the same name as the route and reference it here.
         # The secret should contain the client credentials (client_id and client_secret), which may
         # then be omitted above.
-        #refSecret: full-route
+        #secretRef: full-route
       - name: authz-keycloak
         enable: true
         config:
@@ -38,11 +38,11 @@ spec:
           lazy_load_paths: true
           # ssl_verify may have to be set to false in a test environment. Not recommended for production.
           ssl_verify: false
-        # refSecret: see description above
-        #refSecret: full-route
+        # secretRef: see description above
+        #secretRef: full-route
 ---
 # Example secret for the route definition above.
-# This secret may be referenced via refSecret instead of specifying
+# This secret may be referenced via secretRef instead of specifying
 # the client credentials directly in the route definition.
 # The secret should be created either manually or through a sealed secret.
 apiVersion: v1

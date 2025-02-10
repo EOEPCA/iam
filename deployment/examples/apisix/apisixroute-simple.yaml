@@ -5,8 +5,6 @@ kind: ApisixRoute
 metadata:
   name: simple-route
   namespace: example-service-ns
-  annotations:
-    ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   http:
   - name: simple-http-route
