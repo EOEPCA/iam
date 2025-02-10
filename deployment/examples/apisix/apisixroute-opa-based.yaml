@@ -1,17 +1,18 @@
-# Example route definition for a API service that delegates
-# authorization to APISIX. It expects the caller to handle
-# authentication on their side and present a JWT.
+# Example route definition for a service that delegates both
+# authentication and authorization to APISIX.
+# Unlike in the other examples, however, authorization is
+# performed via OPA instead of Keycloak here.
 apiVersion: apisix.apache.org/v2
 kind: ApisixRoute
 metadata:
-  name: api-route
+  name: opa-authz-route
   namespace: example-service-ns
 spec:
   http:
-  - name: api-http-route
+  - name: opa-authz-http-route
     match:
       hosts:
-        - api-example.apx.develop.eoepca.org
+        - opa-authz-example.apx.develop.eoepca.org
       paths:
         - /*
     backends:
@@ -24,24 +25,17 @@ spec:
           client_id: "example-client"
           client_secret: "example-client-secret"
           access_token_in_authorization_header: true
-          # Only validate the JWT and report 401 on failure; do not trigger authN flow
-          bearer_only: true
           discovery: "https://iam-auth.apx.develop.eoepca.org/realms/eoepca/.well-known/openid-configuration"
         # secretRef is an alternative way to specify sensitive information like the client secret.
         # It is recommended to create a (sealed) secret with the same name as the route and reference it here.
         # The secret should contain the client credentials (client_id and client_secret), which may
         # then be omitted above.
-        #secretRef: api-route
-      - name: authz-keycloak
+        #secretRef: opa-authz-route
+      - name: opa
         enable: true
         config:
-          client_id: "example-client"
-          client_secret: "example-client-secret"
-          discovery: "https://iam-auth.apx.develop.eoepca.org/realms/eoepca/.well-known/uma2-configuration"
-          lazy_load_paths: true
-          # ssl_verify may have to be set to false in a test environment. Not recommended for production.
-          ssl_verify: false
-        #secretRef: api-route
+          host: http://iam-opal-opal-client:8181
+          policy: eoepca/workspace/wsui
 ---
 # Example secret for the route definition above.
 # This secret may be referenced via secretRef instead of specifying
@@ -54,6 +48,6 @@ data:
 kind: Secret
 metadata:
   # Secret name should match route name.
-  name: api-route
+  name: opa-authz-route
   namespace: example-service-ns
 type: Opaque

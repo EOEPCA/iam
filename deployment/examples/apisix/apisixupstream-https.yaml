@@ -1,0 +1,11 @@
+# An ApisixUpstream that configures HTTPS for an entire service.
+# Note that scheme="https" cannot currently be specified in the
+# portLevelSettings section due to a bug in the APISIX Ingress
+# Controller.
+apiVersion: apisix.apache.org/v2
+kind: ApisixUpstream
+metadata:
+  # Note: The upstream name must match the name of the service to be configured.
+  name: example-service
+spec:
+  scheme: https
