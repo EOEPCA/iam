@@ -545,6 +545,63 @@ spec:
 Furthermore, OPA policy rules called via the `opa` plugin also have
 access to the request method and can make decisions based on it.
 
+#### Obtaining an offline token
+
+Some BB services need to make calls to other BBs or external services
+on behalf of the user outside an existing user session (typically in
+case of deferred or scheduled tasks). In order to do this, they need
+to obtain and store an offline token.
+
+The recommended way to obtain the offline token is a dedicated route
+for a single endpoint that requests the `offline_access` scope.
+Whenever this endpoint is accessed within a session that does not
+already have an offline token, the `openid-connect` plugin requests
+one and stores it locally. It then passes the offline token to the
+backend service in the `X-Refresh-Token` header.
+
+Hence, in order to obtain an offline token, a service has to
+* make the user agent access the configured endpoint, e.g. through a
+  redirect, link or form submission, and
+* intercept the call to the endpoint, read the token from the
+  `X-Refresh-Token` header and store it for later use, and
+* return some appropriate content that should include a notification
+  to the user that an offline token has been retrieved and stored.
+
+In addition to requesting the `offline_access` scope, the route for
+the endpoint must be configured to populate the `X-Refresh-Token`
+header as shown by the following example:
+
+```
+kind: ApisixRoute
+metadata:
+  name: authn-only-route
+  namespace: example-service-ns
+spec:
+  http:
+  - name: offline-token-retrieval-route
+    match:
+      hosts:
+        - authn-only-example.apx.develop.eoepca.org
+      # Only configure offline token retrieval for a dedicated path (no wildcards)
+      paths:
+        - /get_offline_token
+    backends:
+      - serviceName: example-service
+        servicePort: 80
+    plugins:
+      - name: openid-connect
+        enable: true
+        config:
+          client_id: "example-client"
+          client_secret: "example-client-secret"
+          access_token_in_authorization_header: true
+          discovery: "https://iam-auth.apx.develop.eoepca.org/realms/eoepca/.well-known/openid-configuration"
+          # Request an offline token instead of a refresh token.
+          scope: openid email profile offline_access
+          # Pass the offline token to the backend via the X-Refresh-Token header.
+          set_refresh_token_header: true
+```
+
 ## TLS Configuration
 
 A standard `Ingress` combines both the routing and the TLS configuration.
