@@ -58,6 +58,7 @@ tokens.
 #### Characteristics
 
 The main characteristics of offline tokens are:
+
 * Offline tokens are designed to be long-lived and to be persisted
   by the client that obtains them.
 * Offline tokens remain valid after a restart of Keycloak
@@ -71,6 +72,7 @@ The main characteristics of offline tokens are:
 #### Limitations
 
 The following limitations of offline tokens have been identified:
+
 1. Offline tokens can only be obtained during the authentication process.
    However, this does not necessarily mean that user interaction is required.
 2. Like refresh tokens, offline tokens are bound to the client that
@@ -80,7 +82,8 @@ The following limitations of offline tokens have been identified:
    to obtain access tokens (JWT). In order for delegation to work, it
    must be made sure that the scope of the access token is wide enough.
    E.g., its audience should include the whole realm or at least all
-   services that may have to be called.\
+   services that may have to be called.
+
    Furthermore it should be made sure that only the service that
    obtained the offline token actually needs to bridge larger time gaps
    and that all authorization required by each of its individual
@@ -163,7 +166,8 @@ from a service's (or BB's) perspective:
   check if the token is still valid by creating an access token through it.
   If this fails, the offline token is invalid, and a new offline token
   needs to be retrieved. This usually requires an active user session.
-  Therefore the check should be performed when the user is present.\
+  Therefore the check should be performed when the user is present.
+
   Creating an access token also refreshes the offline token, so this makes
   sense if the offline token shall be used soon, but has not been used for
   a long time.
