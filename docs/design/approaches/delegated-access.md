@@ -83,7 +83,6 @@ The following limitations of offline tokens have been identified:
    must be made sure that the scope of the access token is wide enough.
    E.g., its audience should include the whole realm or at least all
    services that may have to be called.
-
    Furthermore it should be made sure that only the service that
    obtained the offline token actually needs to bridge larger time gaps
    and that all authorization required by each of its individual
@@ -167,7 +166,6 @@ from a service's (or BB's) perspective:
   If this fails, the offline token is invalid, and a new offline token
   needs to be retrieved. This usually requires an active user session.
   Therefore the check should be performed when the user is present.
-
   Creating an access token also refreshes the offline token, so this makes
   sense if the offline token shall be used soon, but has not been used for
   a long time.
