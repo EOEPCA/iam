@@ -20,6 +20,8 @@ nav:
         - design/components/auth-component/keycloak.md
         - design/components/auth-component/keycloak-opa-plugin.md
         - design/components/policy-component/opal-opa.md
+      - Proposed Approaches:
+        - design/approaches/delegated-access.md
       - API:
         - api/opa-policy-api.md
     - Administration:
