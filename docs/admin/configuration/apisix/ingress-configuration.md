@@ -560,6 +560,7 @@ one and stores it locally. It then passes the offline token to the
 backend service in the `X-Refresh-Token` header.
 
 Hence, in order to obtain an offline token, a service has to
+
 * make the user agent access the configured endpoint, e.g. through a
   redirect, link or form submission, and
 * intercept the call to the endpoint, read the token from the
