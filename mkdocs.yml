@@ -32,6 +32,8 @@ nav:
         - admin/configuration/keycloak/keycloak-configuration.md
         - admin/configuration/keycloak/use-opa-rules.md
         - admin/configuration/github-idp/github-setup-idp.md
+        - admin/configuration/opal/policy-repo-configuration.md
+      - admin/maintenance.md
     - Usage:
       - How-tos: 
         - usage/gitlab/gitlab-setup-iam-bb.md
