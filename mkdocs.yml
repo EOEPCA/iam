@@ -29,9 +29,12 @@ nav:
         - admin/installation/installation.md
       - Configuration:
         - admin/configuration/apisix/ingress-configuration.md
-        - admin/configuration/keycloak/keycloak-configuration.md
-        - admin/configuration/keycloak/use-opa-rules.md
-        - admin/configuration/github-idp/github-setup-idp.md
+        - Keycloak Realm Configuration:
+          - admin/configuration/keycloak/keycloak-configuration.md
+          - admin/configuration/github-idp/github-setup-idp.md
+          - admin/configuration/keycloak/identity-mapping.md
+          - admin/configuration/keycloak/email-verification.md
+          - admin/configuration/keycloak/use-opa-rules.md
         - admin/configuration/opal/policy-repo-configuration.md
       - admin/maintenance.md
     - Usage:
