@@ -1,4 +1,4 @@
-# Configuring Keycloak Realm
+# Basic Realm Configuration
 
 Every Keycloak Realm represents a "group" of users. These users can **authenticate** at clients configured in this realm.
 
