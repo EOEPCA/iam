@@ -137,6 +137,10 @@ spec:
         #secretRef: full-route
 ```
 
+Note: The route above only supports interactive access through a browser.
+The section [Combined route for interactive and API access](#combined_route) describes how
+to combine this with API access.
+
 ### Authentication-only route
 
 This route triggers authentication, but leaves authorization to the backend:
@@ -170,10 +174,15 @@ spec:
         #secretRef: authn-only-route
 ```
 
+Note: The route above only supports interactive access through a browser.
+The section [Combined route for interactive and API access](#combined_route) describes how
+to combine this with API access.
+
 ### Authorization-only (API) route
 
 The following route is suitable for protecting an API where the caller
 obtains and presents a JWT. It therefore only involves authorization.
+It does *not* support interactive use via a browser.
 
 The `openid-connect` plugin is also present, but configured with
 `bearer_only` set to `true`. It only validates the incoming JWT.
@@ -221,6 +230,38 @@ spec:
           ssl_verify: false
         #secretRef: api-route
 ```
+
+Note: The route above only supports the API case.
+The next section describes how to combine this with interactive
+access through a browser.
+
+<a id ="combined_route"></a>
+### Combined route for interactive and API access
+
+The examples above show how to configure routes that either support
+interactive use or use as an API. However, often it is useful to
+expose an API in a way that also allows interactive access through a
+browser.
+
+This can be achieved by configuring an interactive route and adding
+*one* of the following configuration parameters to the
+`openid-connect` plugin:
+
+* `use_jwks=true`: Use JWKS to validate JWTs
+* `public_key=xxx`: Use public key `xxx` to validate JWTs
+* `introspection_endpoint=https://foo/bar`: Use introspection
+  endpoint `https://foo/bar` to validate JWTs
+
+As a side effect, these settings activate verification of a JWT passed
+via the `Authorization` header, but without enforcing it to be present
+as `bearer_only=true` would do.
+
+The setting `use_jwks=true` is the simplest, because it does not
+require specifying a meaningful value. Therefore it is the recommended
+way to specify a combined route by configuring `use_jwks: true` and
+either omit the `bearer_only` parameter or set it to `false`.
+Specifying a public key or an introspection endpoint is a valid
+alternative if the respective value needs to be configured anyway.
 
 ### Route with OPA-based authorization
 
@@ -471,6 +512,7 @@ spec:
 ```
 
 Note that there are currently some pitfalls when using `ApisixUpstream`:
+
 * The value `https` is only supported by the global `scheme` attribute, 
   but not by `portLevelSettings[].scheme`. This seems to be a bug in the
   APISIX Ingress Controller.
@@ -536,6 +578,7 @@ spec:
   http:
   - plugins:
       - name: authz-keycloak
+        enable: true
         config:
           lazy_load_paths: true
           http_method_as_scope: true
@@ -544,6 +587,39 @@ spec:
 
 Furthermore, OPA policy rules called via the `opa` plugin also have
 access to the request method and can make decisions based on it.
+
+#### Path Mapping
+
+Sometimes it is necessary to map external paths to different
+internal paths, e.g. by removing a path prefix. This can be
+accomplished using the `proxy-rewrite` plugin as in the following
+example, which strips the `/docs` prefix from the path:
+
+```
+[...]
+spec:
+  http:
+  - name: docs-route
+    backends:
+    - serviceName: docs-server
+      servicePort: http
+    match:
+      hosts:
+      - example.apx.develop.eoepca.org
+      paths:
+      - /docs/*
+    plugins:
+      - name: proxy-rewrite
+        enable: true
+        config:
+          regex_uri:
+          - ^(/docs)($|/.*)
+          - $2
+[...]
+```
+
+See [APISIX documentation](https://apisix.apache.org/docs/apisix/plugins/proxy-rewrite/)
+on the `proxy-rewrite` plugin for more information.
 
 #### Obtaining an offline token
 
