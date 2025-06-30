@@ -29,23 +29,30 @@ standard security policy for OPA that prevents non-authorized clients
 from reading or modifying policy code.
 
 As a third component, the IAM BB offers a prepared instance of APISIX
-that is used as the ingress controller and Police Enforcement Point (PEP)
+that is used as the ingress controller and Policy Enforcement Point (PEP)
 for the IAM BB itself and can also be used as a PEP for other BBs that
 reside on the same or another cluster. It is installed through the native
 Apache [Helm chart](https://github.com/apache/apisix-helm-chart/).
 
-As an optional fourth component, the Identity API has been added to the
-IAM BB. However, it is not clear yet if the Identity API will remain
-part of the IAM BB or if it shall be removed again. The Identity API is
-installed using the
+As an optional fourth component, the Identity API was added to the
+IAM BB a while ago. However, the Identity API is meanwhile considered
+deprecated and shall be removed in a later release. It is disabled by
+default and should not be used productively. If enabled, the Identity
+API is installed using the
 [Identity Service Helm chart](https://github.com/EOEPCA/helm-charts-dev/tree/develop/charts/identity-service).
+
+Furthermore there is a separate `iam-bb-config` Helm chart that
+contains some configuration based on the Crossplane Keycloak Provider.
+For instance, it helps to automate creating a `ProviderConfig`, an OPA
+client and optionally a realm.
 
 ### Overall Deployment
 
 In the [reference environment](https://github.com/EOEPCA/eoepca-plus),
 the components are currently installed separately via the IAM BB Helm
 chart and glued together via an ArgoCD App of Apps. This allows
-maintaining the components separately in ArgoCD.
+maintaining the components separately in ArgoCD, but leads to a
+quite complex setup.
 
 In a typical (non-ArgoCD) environment, it is recommended to
 deploy the IAM at once, except for APISIX, which should be deployed
@@ -128,15 +135,14 @@ before installing. This especially applies to the following entries:
   if the name of the OPAL client service deviates from the default.
   Note that the service name depends on the release name and defaults
   to the release name with `-opal-client` appended.
-  `KC_HOSTNAME_URL` and `KC_HOSTNAME_ADMIN_URL` should be changed
-  to the official external URL of the Keycloak service.
+  `KC_HOSTNAME_URL` should be changed to the official external URL
+  of the Keycloak service. The `values.yaml` file of the `iam-bb`
+  Helm chart sets it implicitly via an anchor.
   ```
   extraEnvVars:
   - name: KC_SPI_POLICY_OPA_OPA_BASE_URI
     value: "http://iam-opal-opal-client:8181/v1/data/"
-  - name: KC_HOSTNAME_URL
-    value: "https://iam-auth.develop.eoepca.org"
-  - name: KC_HOSTNAME_ADMIN_URL
+  - name: KC_HOSTNAME
     value: "https://iam-auth.develop.eoepca.org"
   ```
 
@@ -201,9 +207,10 @@ before installing. This especially applies to the following entries:
   ```
   This is not necessary if APISIX is deployed using the `iam-bb` Helm chart.
 
-* APISIX: In the reference system, a NodePort service is configured as the
-  standard ingress entry point. The `iam-bb` Helm chart does not have a
-  default configuration for the entry point. This may have to be adapted.
+* APISIX: In the reference environment, a NodePort service is configured
+  as the standard ingress entry point. The `iam-bb` Helm chart does not
+  have a default configuration for the entry point. This may have to be
+  adapted.
   ```
   service:
     type: NodePort
@@ -241,6 +248,50 @@ in a single step. APISIX may then also reside in the `iam` namespace.
 The `iam-bb` Helm chart can also be used to install APISIX on other clusters
 where it shall be used as an ingress controller and PEP in conjunction with
 the IAM. In this case, it should use the `ingress-apisix` namespace.
+
+#### `iam-bb-config` subchart
+
+The `iam-bb-config` Helm chart allows automating some configuration steps
+if the Crossplane Keycloak Provider is available. It is normally applied
+as a subchart by the `iam-bb` chart, but it can also be used stand-alone,
+e.g. if the IAM BB is deployed on another cluster than the one on which
+Crossplane is available.
+
+Basic realm initialization is normally performed by the `iam-bb` Helm
+chart itself (if `iam.keycloak.configuration.useKeycloakConfigCli` is set
+to `true`). The `iam-bb` chart additionally creates a client for Crossplane
+if `iam.keycloak.configuration.provider.createServiceAccount` is `true`.
+
+Building upon this basic initialization, the `iam-bb-config` Helm chart
+performs the following setup:
+
+* Create a `ProviderConfig` for the Crossplane Keycloak Provider. This
+  provider can also be used by other BBs to perform Keycloak setup.
+* Create and setup a `Client` for OPA and optionally Identity API
+
+Optionally, the `iam-bb-config` chart is also able to create the realm as
+a Crossplane CR. However, this only makes sense in very rare cases and
+should generally be avoided.
+
+#### Prerequisites
+
+Depending on the chosen options the IAM-BB Helm chart requires the following
+infrastructure services to be present on the cluster:
+
+* The `iam-bb-config` Helm chart requires [Crossplane](https://www.crossplane.io/)
+  and the [Crossplane Keycloak Provider](https://github.com/crossplane-contrib/provider-keycloak).
+  This is also the case if the `iam-bb-config` chart is applied implicitly
+  as a subchart by setting `iam.config.enabled` to `true`. If these
+  prerequisites are not met, deployment of `iam-bb-config` fails.
+* The `iam-bb` Helm chart generates secrets for `kubernetes-secret-generator`
+  if `iam.keycloak.configuration.useSecretGenerator` is set to `true`.
+  In order for these secrets to work properly, it requires
+  [Kubernetes Secret Generator](https://github.com/mittwald/kubernetes-secret-generator)
+  to be installed. Note that the `iam-bb` Helm chart does not rely on
+  `kubernetes-secret-generator` CRDs, but generates annotations. This means
+  that `iam-bb` deployment also works without `kubernetes-secret-generator`,
+  but actual secret generation would not happen, which would cause follow-up
+  errors.
 
 ### Alternative: Individual Helm Charts
 
@@ -323,16 +374,19 @@ configured using standard Ingress objects. Furthermore, they
 allow separating the TLS configuration from the actual route
 definitions.
 
-Note that the `iam-bb` Helm chart can create the routes for Keycloak,
-OPA and Identity API automatically. However, the TLS configuration
-must still be provided separately, because it heavily depends on
-the environment.
+Note that the `iam-bb` Helm chart can create the EOEPCA realm as well as
+the routes and clients for Keycloak, OPA and Identity API automatically
+as far as desired. Alternatively they can be configured manually.
 
-Finally, some further manual configuration need to be done in Keycloak:
-* Create realm (mandatory)
-* Create OPA client (required for OPA route)
-* Create Identity API client (required for Identity API route)
-* Configure GitHub as IdP (optional)
+Note, however, that the TLS configuration must always be provided
+manually, because it heavily depends on the environment.
+
+Finally, some further manual configuration may need to be done in
+Keycloak:
+
+* Configure GitHub as IdP
+* Configure further IdPs
+* Configure e-mail handling
 
 ### TLS Configuration
 
@@ -388,11 +442,7 @@ and any other services that need to be accessible from outside the
 cluster. The `iam-bb` Helm chart does this automatically based on
 the settings made in the `values.yaml` file.
 
-The following is an example route definition for Keycloak. For information,
-it still includes a workaround for a potential issue that causes redirects to
-address a container port (9443) instead of the official HTTPS port (443).
-Note that this workaround has meanwhile become part of the global IAM
-setup and has therefore been commented out.
+The following is an example route definition for Keycloak:
 
 ```
 apiVersion: apisix.apache.org/v2
@@ -415,15 +465,6 @@ spec:
       paths:
       - /*
     name: keycloak
-    # This section has become obsolete:
-    #plugins:
-    #  # Possible workaround for redirect-to-9443 problem that also works for HTTP
-    #  - name: serverless-pre-function
-    #    enable: true
-    #    config:
-    #      phase: "rewrite"
-    #      functions:
-    #        - "return function(conf, ctx) if tonumber(ngx.var.var_x_forwarded_port) > 9000 then ngx.var.var_x_forwarded_port = ngx.var.var_x_forwarded_port - 9000 end end"
 ```
 
 The following route is an example route for OPA. It includes
@@ -457,6 +498,7 @@ spec:
           client_id: "opa"
           client_secret: "..."
           access_token_in_authorization_header: true
+          use_jwks: true
           discovery: "https://iam-auth.apx.develop.eoepca.org/realms/eoepca/.well-known/openid-configuration"
         # Alternative to hide sensitive information like the client secret:
         # secretRef: my-secret
@@ -478,8 +520,9 @@ and the [Ingress Configuration Guide](https://eoepca.readthedocs.io/projects/iam
 
 ## Keycloak Configuration
 
-Finally, some manual configuration need to be done in Keycloak.
-The required steps are described in the following subsections.
+Finally, some manual configuration may need to be done in Keycloak
+unless they have already been performed by the IAM-BB Helm chart.
+The potential steps are described in the following subsections.
 
 ### Create realm
 
