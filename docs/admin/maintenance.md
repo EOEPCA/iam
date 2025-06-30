@@ -57,3 +57,46 @@ If you notice that resource synchronization does not take place
 though the ingress controller pod looks good, you should check its
 logs and maybe restart it. The restart should usually solve the
 problem, provided that the APISIX gateway is available and working.
+
+### APISIX Route does not get into effect
+
+APISIX only accepts routes that are correct in the sense that all
+referenced services and service ports actually exist at the
+time when the route is created or updated. On the Kubernetes level,
+however, incorrect route definitions can be applied without getting
+an error.
+
+Obviously, the ingress controller is not able to synchronize such
+incorrect route definitions. It handles this by logging an error message
+like `translation/apisix_route.go:621 ApisixRoute refers to non-existent
+Service port` and retrying later, leaving the route unchanged until
+the route definition or the referenced services are corrected.
+
+If you observe that a change you made to a route definition
+(`ApisixRoute` resource) does not get into effect, you may consult
+the APISIX Ingress Controller logs and search for error messages like
+the one stated above. If there are such messages, your route definition
+is probably incorrect. Unfortunately the message typically only mentions
+the namespace and port number, but no the affected service, so you need
+to figure it out yourself.
+
+Note that routes are only checked for correctness when they are created
+or updated. If a service referenced by an already configured route
+is modified in an incompatible way, only the reference to this service
+is affected while other subroutes may still continue working.
+
+### APISIX Route gets broken after update of referenced secret
+
+The plugin sections of APISIX Routes may reference secrets that contain
+further configuration details like client secrets. The APISIX Ingress
+Controller does *not* monitor these secrets.
+
+This means that changes made to such secrets only get into effect when
+the referencing route changes and is resynchronized. One way to trigger
+a resynchronization is to manually edit the route.
+
+Note that changes to the secrets are not necessarily performed
+manually, but can also occur implicitly when a `helm upgrade` is
+executed in conjunction with automatic generation of secrets using Helm
+random functions or if automated secret rotation is configured using tools
+like `kubernetes-secret-generator`.
