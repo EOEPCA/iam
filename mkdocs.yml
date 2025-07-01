@@ -22,6 +22,7 @@ nav:
         - design/components/policy-component/opal-opa.md
       - Proposed Approaches:
         - design/approaches/delegated-access.md
+        - design/approaches/client-secret-generation.md
       - API:
         - api/opa-policy-api.md
     - Administration:
@@ -31,10 +32,12 @@ nav:
         - admin/configuration/apisix/ingress-configuration.md
         - Keycloak Realm Configuration:
           - admin/configuration/keycloak/keycloak-configuration.md
-          - admin/configuration/github-idp/github-setup-idp.md
           - admin/configuration/keycloak/identity-mapping.md
           - admin/configuration/keycloak/email-verification.md
           - admin/configuration/keycloak/use-opa-rules.md
+        - Setup External IdPs in Keycloak:
+          - admin/configuration/idp/setup-other-idp.md
+          - admin/configuration/idp/github-setup-idp.md
         - admin/configuration/opal/policy-repo-configuration.md
       - admin/maintenance.md
     - Usage:

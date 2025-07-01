@@ -9,13 +9,7 @@ The "users" of a realm can be imported by various methods. They are seperated by
 
 ## Link an IDP
 
-Inside a Realm, you can offer users to login into the realm by using an external account (from an Identity Provider), for example GitHub.
-
-Keycloak supports many Identity Providers by default, see below:
-
-![Keycloak Default IDP List](idp.png)
-
-The Configuration of Identity Providers is straight-forward, many times you only need to register an application at the Identity Provider to get Client Credentials, which you have to enter inside the Keycloak IDP Configuration to authorize at the Identity Provider.
+For further information about integrating your first IdP please see [Setup IDPs in Keycloak](../idp/setup-other-idp.md)
 
 ## Configure a client 
 
