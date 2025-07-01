@@ -1,12 +1,9 @@
-# Setup external IDPs in Keycloak
-
-
-## GitHub as IDP in Keycloak
+# GitHub as IDP in Keycloak
 
 To make it possible for users to login with their GitHub account, you should firstly setup the connection on GitHub's side.\
 You will receive credentials, which are required in the Keycloak configuration.
 
-### GitHub Configuration
+## GitHub Configuration
 
 For the registration of your Keycloak instance at GitHub, you firstly need a GitHub Account, which should hold the configuration.
 
@@ -31,9 +28,9 @@ You can now obtain the Client ID and Client Secret for integration in the Keyclo
 
 ![Client ID and Secret Location](github-clientidsecret.png)
 
-### Keycloak Configuration
+## Keycloak Configuration
 
-Inside of keycloak, you need to configure a new IDP which represents the GitHub instance. Also see [Link an IDP](../keycloak/keycloak-configuration.md#link-an-idp).
+Inside of keycloak, you need to configure a new IDP which represents the GitHub instance. Also see [Setup other IDP](setup-other-idp.md).
 
 At first, you will encounter a `Redirect URI`. This is useful for configuring the application in GitHub. It is read-only.
 
