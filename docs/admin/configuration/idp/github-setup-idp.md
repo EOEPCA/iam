@@ -1,6 +1,7 @@
 # GitHub as IDP in Keycloak
 
-To make it possible for users to login with their GitHub account, you should firstly setup the connection on GitHub's side.\
+To make it possible for users to login with their GitHub account, you should firstly setup the connection on GitHub's side.
+
 You will receive credentials, which are required in the Keycloak configuration.
 
 ## GitHub Configuration
@@ -40,7 +41,8 @@ Inside of keycloak, you need to configure a new IDP which represents the GitHub 
 
 At first, you will encounter a `Redirect URI`. This is useful for configuring the application in GitHub. It is read-only.
 
-For GitHub, you only need to set a Client ID and Secret. This credentials are provided by the GitHub configuration above.\
+For GitHub, you only need to set a Client ID and Secret. This credentials are provided by the GitHub configuration above.
+
 By default, the https://github.com/ instance will be used by keycloak. If that is not suitable for your environment, you can use a different URL by setting a "Base URL".
 
 ![GitHub Add Provider Page](github-creation.png)
