@@ -8,11 +8,16 @@ You will receive credentials, which are required in the Keycloak configuration.
 For the registration of your Keycloak instance at GitHub, you firstly need a GitHub Account, which should hold the configuration.
 
 After logging in into your desired GitHub Account, please visit the OAuth Apps by clicking [here](https://github.com/settings/developers) or navigate manually:
+
 - Click on your profile picture on the top right.
-- In the menu, click on `Settings`\
+- In the menu, click on `Settings`
+
 ![Profile Menu](github-visit-settings.png)
-- On the left sidebar, click on `Developer settings`.\
+
+- On the left sidebar, click on `Developer settings`.
+
 ![Profile Settings](github-visit-developersettings.png)
+
 - Now, please click on `OAuth Apps`.
 
 Arrived at the OAuth Apps Page, you can now `Register a new application`.
@@ -23,7 +28,8 @@ On the form appearing, you will have to enter two URLs from your keycloak instan
 
 The `Homepage URL` will be used from GitHub for internal purposes. **Important is the `Authorization callback URL`, which you can also extract from the Creation process of the IDP in Keycloak (see [Keycloak Configuration](#keycloak-configuration)).**
 
-After creation, lastly you need to `Generate a new client secret` on the appearing settings page of your application.\
+After creation, lastly you need to `Generate a new client secret` on the appearing settings page of your application.
+
 You can now obtain the Client ID and Client Secret for integration in the Keycloak Configuration!
 
 ![Client ID and Secret Location](github-clientidsecret.png)

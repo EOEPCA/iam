@@ -23,6 +23,7 @@ You can add such custom IdP with the help of the "**Add Keycloak OpenID Connect 
 
 To setup the IdP, you need to get in touch with the Identity Provider so they can create credentials for your application in their IdP software.
 Most likely they want the following informations from you:
+
 - `Name of application / Client Name / ...`: This can be freely decided by you.
 - `Redirect URL`: This URL can be obtained from the "Redirect URI" field in the Form. Please keep in mind that part of this URL can dynamically change while changing the field "Alias". ![Redirect URI Field](custom_idp_redirecturi.png)
 - `Flow`: When redirecting your users from Keycloak to the Identity Provider you most likely want the "Authorization Code" Flow. This flow happens in the browser of the user.
@@ -30,6 +31,7 @@ Most likely they want the following informations from you:
 
 After providing this information to the IdP, the IdP should be able to give you the credentials and information you need to fill in the "Add Keycloak OpenID Connect provider" form.
 Mainly this will be:
+
 - `Discovery endpoint`: You will find all URLs you need for the OpenID Connect connection in it. Keycloak just wants the Discovery URL and will try to obtain all URLs by itself. You can review or edit the needed URLs by Keycloak by clicking on "**Show metadata**" below the Discovery Endpoint field inside the form.
 - `Client ID`: This can be freely decided by the IdP in most situations. Keycloak will provide this Client ID in further requests to the IdP so the IdP knows who you are. It is also possible that the IdP will use your name of application or any other name you provided.
 - Client authentication required? 
