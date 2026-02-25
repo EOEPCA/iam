@@ -12,6 +12,7 @@ metadata:
   name: mixed-route
   namespace: example-service-ns
 spec:
+  ingressClassName: apisix
   http:
   - name: public-http-route
     backends:

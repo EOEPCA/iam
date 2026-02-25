@@ -4,6 +4,17 @@ This chapter explains ingress configuration in conjunction with
 the IAM BB and the APISIX ingress controller. It also provides some
 examples for common scenarios.
 
+Note that this documentation focuses on native APISIX CRDs as the
+primary means for ingress configuration. Since APISIX Ingress
+Controller 2.0.0, most of the configurations described here can
+also be achieved using the Gateway API. APISIX-specific features
+can be leveraged by referencing APISIX-specific resources from
+Gateway API resources.
+
+The meanwhile deprecated Ingress API does not support most of the
+features addressed here and does not provide an appropriate
+extension mechanism.
+
 ## Route Configuration
 
 By default, the IAM BB uses APISIX as an ingress controller. This section
@@ -82,6 +93,7 @@ metadata:
   name: simple-route
   namespace: example-service-ns
 spec:
+  ingressClassName: apisix
   http:
   - name: simple-http-route
     backends:
@@ -94,6 +106,12 @@ spec:
       - "/*"
 ```
 
+Note that the APISIX Ingress Controller as of version 2.0.0 supports
+multiple ingress classes and requires the attribute `ingressClassName`
+unless the APISIX ingress class to use is the default ingress class.
+Earlier versions of the APISIX Ingress Controller did not require this
+attribute.
+
 ### Fully protected route (authentication and authorization)
 
 The following route involves both authentication and authorization:
@@ -105,6 +123,7 @@ metadata:
   name: full-route
   namespace: example-service-ns
 spec:
+  ingressClassName: apisix
   http:
   - name: full-http-route
     match:
@@ -121,6 +140,8 @@ spec:
         config:
           client_id: "example-client"
           client_secret: "example-client-secret"
+          session:
+            secret: 01234567890abcdef
           access_token_in_authorization_header: true
           discovery: "https://iam-auth.apx.develop.eoepca.org/realms/eoepca/.well-known/openid-configuration"
         # secretRef is an alternative way to specify sensitive information like the client secret. See APISIX example routes.
@@ -152,6 +173,7 @@ metadata:
   name: authn-only-route
   namespace: example-service-ns
 spec:
+  ingressClassName: apisix
   http:
   - name: authn-only-http-route
     match:
@@ -168,6 +190,8 @@ spec:
         config:
           client_id: "example-client"
           client_secret: "example-client-secret"
+          session:
+            secret: 01234567890abcdef
           access_token_in_authorization_header: true
           discovery: "https://iam-auth.apx.develop.eoepca.org/realms/eoepca/.well-known/openid-configuration"
         # secretRef is an alternative way to specify sensitive information like the client secret. See APISIX example routes.
@@ -197,6 +221,7 @@ metadata:
   name: api-route
   namespace: example-service-ns
 spec:
+  ingressClassName: apisix
   http:
   - name: api-http-route
     match:
@@ -213,6 +238,8 @@ spec:
         config:
           client_id: "example-client"
           client_secret: "example-client-secret"
+          session:
+            secret: 01234567890abcdef
           access_token_in_authorization_header: true
           # Only validate the JWT and report 401 on failure; do not trigger authN flow
           bearer_only: true
@@ -281,6 +308,7 @@ metadata:
   name: opa-authz-route
   namespace: example-service-ns
 spec:
+  ingressClassName: apisix
   http:
   - name: opa-authz-http-route
     match:
@@ -297,6 +325,8 @@ spec:
         config:
           client_id: "example-client"
           client_secret: "example-client-secret"
+          session:
+            secret: 01234567890abcdef
           access_token_in_authorization_header: true
           discovery: "https://iam-auth.apx.develop.eoepca.org/realms/eoepca/.well-known/openid-configuration"
         # secretRef is an alternative way to specify sensitive information like the client secret.
@@ -328,6 +358,7 @@ metadata:
   name: mixed-route
   namespace: example-service-ns
 spec:
+  ingressClassName: apisix
   http:
   - name: public-http-route
     backends:
@@ -403,7 +434,8 @@ really suitable for real-world use.
 Therefore APISIX allows externalizing any attributes
 of plugin configurations to a secret. This can and should
 be used to externalize the `client_id` and `client_secret`
-attributes.
+attributes. It also makes sense for the `session.secret`
+attribute of the `openid-connect` plugin.
 
 The secret is referenced from the plugin configuration
 by the `secretRef` attribute. The mixed route
@@ -418,6 +450,7 @@ apiVersion: v1
 data:
   client_id: "ZXhhbXBsZS1jbGllbnQ="
   client_secret: "ZXhhbXBsZS1jbGllbnQtc2VjcmV0"
+  session.secret: 01234567890abcdef
 kind: Secret
 metadata:
   # Secret name should match route name.
@@ -654,6 +687,7 @@ metadata:
   name: authn-only-route
   namespace: example-service-ns
 spec:
+  ingressClassName: apisix
   http:
   - name: offline-token-retrieval-route
     match:
@@ -671,6 +705,8 @@ spec:
         config:
           client_id: "example-client"
           client_secret: "example-client-secret"
+          session:
+            secret: 01234567890abcdef
           access_token_in_authorization_header: true
           discovery: "https://iam-auth.apx.develop.eoepca.org/realms/eoepca/.well-known/openid-configuration"
           # Request an offline token instead of a refresh token.
