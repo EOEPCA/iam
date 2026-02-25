@@ -6,6 +6,7 @@ metadata:
   name: simple-route
   namespace: example-service-ns
 spec:
+  ingressClassName: apisix
   http:
   - name: simple-http-route
     backends:

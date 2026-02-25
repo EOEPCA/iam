@@ -7,6 +7,7 @@ metadata:
   name: api-route
   namespace: example-service-ns
 spec:
+  ingressClassName: apisix
   http:
   - name: api-http-route
     match:
@@ -23,6 +24,8 @@ spec:
         config:
           client_id: "example-client"
           client_secret: "example-client-secret"
+          session:
+            secret: 01234567890abcdef
           access_token_in_authorization_header: true
           # Only validate the JWT and report 401 on failure; do not trigger authN flow
           bearer_only: true
