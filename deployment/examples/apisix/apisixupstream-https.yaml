@@ -8,4 +8,5 @@ metadata:
   # Note: The upstream name must match the name of the service to be configured.
   name: example-service
 spec:
+  ingressClassName: apisix
   scheme: https

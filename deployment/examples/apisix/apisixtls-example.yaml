@@ -12,5 +12,6 @@ spec:
   hosts:
     - "*.apx.develop.eoepca.org"
   secret:
+    ingressClassName: apisix
     name: example-wildcard-tls
     namespace: iam

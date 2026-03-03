@@ -541,10 +541,12 @@ kind: ApisixUpstream
 metadata:
   name: example-service
 spec:
+  ingressClassName: apisix
   scheme: https
 ```
 
-Note that there are currently some pitfalls when using `ApisixUpstream`:
+Note that there are currently some pitfalls when using `ApisixUpstream`
+with APISIX Ingress Controller 1.8:
 
 * The value `https` is only supported by the global `scheme` attribute, 
   but not by `portLevelSettings[].scheme`. This seems to be a bug in the
@@ -557,6 +559,9 @@ Note that there are currently some pitfalls when using `ApisixUpstream`:
 * Synchronization warnings related to `ApisixUpstream` may appear in
   the ingress controller logs as described in
   [this issue](https://github.com/apache/apisix-ingress-controller/issues/1996).
+
+With APISIX Ingress Controller 2.0, the issues listed above should not
+show up any more.
 
 ### Special cases
 
@@ -739,6 +744,7 @@ metadata:
   name: example-wildcard-tls
   namespace: ingress-apisix
 spec:
+  ingressClassName: apisix
   hosts:
     - "*.apx.develop.eoepca.org"
   secret:
