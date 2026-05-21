@@ -8,7 +8,7 @@ To setup a login with the IAM BB in GitLab, configuration is needed on Keycloak 
 
 Inside of keycloak, you need to configure a new client which represents the GitLab instance. For this, see the documentation on how to [Configure Keycloak Clients](../../admin/keycloak/keycloak-configuration.md#configure-a-client-).
 
-Please enable Client Authentication, as the GitLab configuration in this documentation will require you to enter clientid + secret.\
+Please enable Client Authentication, as the GitLab configuration in this documentation will require you to enter clientid + secret.
 The root url, which needs to be defined while creating the client, will be the root url of your GitLab instance `https://<GITLAB INSTANCE>/`.
 
 ## Gitlab Configuration
@@ -25,7 +25,7 @@ Inside the configuration file, firstly enable the OIDC-provider, please set the 
 `gitlab_rails['omniauth_enabled'] = true`
 ```
 
-</br>
+<br/>
 
 GitLab blocks users by default if there is no matching user account in GitLab. To prevent this, please set: 
 
