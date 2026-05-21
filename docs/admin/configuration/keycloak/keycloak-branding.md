@@ -14,6 +14,9 @@ When creating Keycloak Themes, you can import the base-Theme or keycloak.v2-Them
 
 Themes can be deployed to Keycloak via the ``theme`` directory or via an **Keycloak Extension** build as ``.jar``, placed in the ``/providers`` directory.
 
+It is recommended to put the created theme files or the extension into the directory via mounting them into the Keycloak Container.
+The ``theme`` and ``providers`` directory is currently found inside the default keycloak container under path ``/opt/keycloak``.
+
 **The basics of creating and deploying Keycloak themes and Examples are also described in the keycloak documentation here:** https://www.keycloak.org/ui-customization/themes
 
 A theme deployed as Keycloak extension should look like this:
@@ -21,3 +24,19 @@ A theme deployed as Keycloak extension should look like this:
 ![Example Theme Deployment](example_theme_deployment.png)
 
 The red marked folders and files are minimum required to edit for example ``login-config-totp.ftl``.
+
+### Activating a Custom Theme
+
+After successful deployment, **the theme needs to be activated** by selecting it in the realm it should be used in.
+
+To do this, visit the Administration UI of Keycloak and select the realm you want to apply the theme to. Then navigate to "Realm settings" > "Themes". If deployment is correct, you should find your custom theme under the right theme type selectable here.
+
+![Theme Settings](activate_custom_theme.png)
+
+## Upgrading Keycloak with Custom Branding
+
+When Keycloak gets upgraded, it is recommended to check if the edited ``.ftl``-files got changed within the new Keycloak version.
+This can be done by reviewing the Keycloak Github Project, as mentioned above.
+
+If it got changed, own custom changes should be **merged** with the changes from the new keycloak version.
+If not, it should be possible to upgrade keycloak **without editing the deployment described above**, because the existing theme will get added to the new keycloak container.
