@@ -6,7 +6,7 @@ Following steps needs to be taken to start with enforcing OPA Policies in Keyclo
 
 ![Enable Authorization](enable_authorization.png)
 
-To enable (OPA) Policy-Support for a Client, you need to enable "Authorization". To achieve that, Keycloak requires to also enable "Client authentication".\
+To enable (OPA) Policy-Support for a Client, you need to enable "Authorization". To achieve that, Keycloak requires to also enable "Client authentication".
 You can achieve that by enabling these options at the client creation process, but also while editing an existing client.
 
 Because of the enabled Client authentication, the application connected to Keycloak needs to authenticate with Client ID and Secret (or something else). The Client authentication can be configured in the "Credentials" Tab of a client configuration inside Keycloak.

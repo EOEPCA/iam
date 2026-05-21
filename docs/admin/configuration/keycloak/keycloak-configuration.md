@@ -29,7 +29,7 @@ For further informations about the OpenID Connect Flows, please see the [OpenID 
 
 ![Client Auth Location](enable_authorization.png)
 
-You also need to specify which application will use this client. This is done by defining the Root URL of the application which will use Keycloak.\
+You also need to specify which application will use this client. This is done by defining the Root URL of the application which will use Keycloak.
 Only allowed redirect urls can request your created client.
 
 ![Root URL](create_client_2.png)
