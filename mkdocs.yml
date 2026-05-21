@@ -11,7 +11,7 @@ nav:
   #    - getting-started/quick-start.md
   #    - getting-started/more-getting-started.md
     - Design:
-      - Architecture: 
+      - Architecture:
         - design/overview.md
       - Use Cases:
         - design/use-cases/use-cases.md
@@ -35,13 +35,14 @@ nav:
           - admin/configuration/keycloak/identity-mapping.md
           - admin/configuration/keycloak/email-verification.md
           - admin/configuration/keycloak/use-opa-rules.md
+          - admin/configuration/keycloak/keycloak-branding.md
         - Setup External IdPs in Keycloak:
           - admin/configuration/idp/setup-other-idp.md
           - admin/configuration/idp/github-setup-idp.md
         - admin/configuration/opal/policy-repo-configuration.md
       - admin/maintenance.md
     - Usage:
-      - How-tos: 
+      - How-tos:
         - usage/gitlab/gitlab-setup-iam-bb.md
         - usage/config-as-idp/keycloak-as-idp.md
         - usage/loginflow/login-at-keycloak.md
