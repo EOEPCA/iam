@@ -44,9 +44,13 @@ passing an access token from one service to another. This is a
 legitimate approach and is used as the initial solution.
 
 A somewhat more sophisticated approach for delegated access is the
-use of token exchange. It is about to become operationally available
-in Keycloak in the near future and is considered a useful amendment
-for the delegated access scenarios.
+use of token exchange. In version 26.2, Keycloak introduced
+"Standard Token Exchange" as an operational feature. The feature
+is compatible with RFC 8693, but does not support all use cases of
+RFC 8693. In particular it does not support exchanging access tokens
+for offline tokens, which would have been useful for EOEPCA.
+Furthermore, impersonation and delegation to another real user are
+not supported, but these are not really relevant for EOEPCA anyway.
 
 ## Approach 1: Offline Tokens
 
@@ -81,17 +85,17 @@ The following limitations of offline tokens have been identified:
    Only the client that requested the offline token is able to use it
    to obtain access tokens (JWT). In order for delegation to work, it
    must be made sure that the scope of the access token is wide enough.
-   E.g., its audience should include the whole realm or at least all
-   services that may have to be called.
+   E.g., its audience should include all services that may have
+   to be called.
    Furthermore it should be made sure that only the service that
    obtained the offline token actually needs to bridge larger time gaps
    and that all authorization required by each of its individual
    subactivities can be performed within the lifetime of an access token.
-
-Note that the limitations no. 1 and no. 3 are addressed by token
-exchange. Thus the use of token exchange may mitigate or even eliminate
-them, depending on the detailed arrangement of the token exchange
-feature in Keycloak.
+4. Unfortunately, the "Standard Token Exchange" feature of Keycloak does
+   *not* support offline tokens. It is neither possible to exchange an
+   offline token for another token nor vice versa, and it is not planned 
+   to add support for this in the near future. See also
+   [this issue](https://github.com/keycloak/keycloak/issues/23144).
 
 #### Recommendations
 
@@ -106,6 +110,9 @@ of offline tokens:
   longer needed, instead of just dropping it.
 * Token rotation can be used to mitigate token leakage at the cost of
   some administrative overhead.
+* As offline tokens cannot be obtained via token exchange, clients
+  that need them should implement an explicit (typically interactive)
+  mechanism to obtain them.
 
 #### Further Considerations
 
@@ -120,7 +127,7 @@ offline tokens include:
   is set to `true`. The offline token contained in the `X-Refresh-Token`
   header can be passed to the token endpoint as a refresh token in order
   to obtain an access token.
-* A new offline token is generated upon each login. Therefore it is not
+* A new offline token is generated upon each login. Therefore it is *not*
   recommended to simply add the `offline_access` scope globally for a
   complete service. Instead, a dedicated endpoint with a separate subroute
   should be defined for this, and only this endpoint should request the
@@ -137,6 +144,10 @@ offline tokens include:
   token. In case of token rotation (token is revoked and replaced when
   it is used), the returned token is a new one, which means that it must
   be stored in place of the original one.
+* Note that consequently it is also impossible to exchange an access
+  token that was issued in conjunction with an offline token for a
+  refresh token. Services that exchange access tokens for refresh tokens
+  must thus be prepared for failure.
 
 ### Obtain and Manage Offline Tokens
 
@@ -185,10 +196,12 @@ from a service's (or BB's) perspective:
 * A service that holds an offline token never passes it to other services,
   because they could not use it anyway. Instead, it requests an access
   token (JWT) and passes it to upstream services, which in turn may pass
-  it to their upstream sevices. This implies that there is a master service
+  it to their upstream services. This implies that there is a master service
   that holds the offline token and may use it to bridge time gaps,
   whereas all other (slave) services only get an access token and are
   therefore not able to bridge time gaps.
+* Exchanging access tokens obtained from an offline session for access
+  tokens with modified scope or audience is possible and may be useful.
 
 #### Offline Token Retrieval
 
@@ -234,12 +247,17 @@ want to use it for accessing another service.
 The following diagram sketches the use of the offline token. The user
 is not involved here any more. Instead, the process is initiated by the
 master service. It loads the offline token it previously stored and
-exchanges it for an access token via Keycloak's token endpoint. It then
-calls some action on the slave service with the access token attached.
+exchanges it for an access token via Keycloak's token endpoint using
+the `refresh_token` grant. It then calls some action on the slave
+service with the access token attached.
 The slave service validates the token via Keycloak, does something useful
 and sends a response to the master service.
 
 ![Image](offline-token-use.png)
+
+Note that the master service may optionally use token exchange to
+up- or downscope the access token before passing it to the slave
+service. This is not reflected in the diagram.
 
 ## Approach 2: Token Passing
 
@@ -247,7 +265,8 @@ The simplest and traditional way to implement delegated access with
 authorization in OAuth is to pass an already existing access token
 from the calling (master) service to the called (slave) service.
 This means that all services in the call chain effectively rely on
-the same access token.
+the same access token. This approach is also known as
+"Poor Man's Delegation".
 
 This only works if the initial access token already addresses all
 services as its audience that may be invoked directly or indirectly.
@@ -263,9 +282,9 @@ be able to call A in order to do evil things.
 
 Hence this approach is not perfect from a security point of
 view, but it is easy to implement and usually acceptable if
-security demands are moderate. Therefore (and also due to a current
-lack of viable alternatives) we use it as the standard approach
-for now.
+security demands are moderate. Therefore (and also due to a
+lack of viable alternatives) we initially used it as the standard
+approach.
 
 ## Approach 3: Token Exchange
 
@@ -278,6 +297,29 @@ obtain tokens of a different type may also be useful for some
 EOEPCA scenarios. See [this issue](https://github.com/EOEPCA/iam/issues/85)
 for more information.
 
-Token exchange has been around as a preview feature
-in Keycloak for a while and is about to become a fully supported
-feature in the near future (starting with Keycloak 26.2).
+Token exchange had been around as a preview feature
+in Keycloak for a while and has meanwhile become a fully supported
+feature called "Standard Token Exchange" since Keycloak 26.2.
+
+Note that the "Standard Token Exchange" feature still has limitations.
+The main limitation is that it is only able to exchange tokens within
+a single existing user session. This leads to the following implications:
+
+* Access tokens can be exchanged for access tokens with extended or
+  reduced scopes and/or reduced audience. By using protocol mappers
+  in conjunction with scopes, most token details can be adapted this
+  way.
+* Access tokens can be exchanged for refresh tokens if the client
+  allows this and the token does *not* belong to an offline session.
+* Standard Token Exchange does *not* support offline tokens. However,
+  access tokens obtained from an offline session can still be exchanged
+  for adapted access tokens (but not for refresh tokens).
+* Standard Token Exchange does *not* support tokens from external
+  IdPs. However, in conjunction with other mechanisms like JWT
+  Authorization Grant, it is also useful in a federated context.
+* Standard Token Exchange does not support impersonation and user
+  delegation use cases.
+
+More details about the capabilities of the Standard Token Exchange
+feature and the reasoning behind them can be found in the
+[Keycloak issue](https://github.com/keycloak/keycloak/issues/31546).
