@@ -39,6 +39,7 @@ nav:
         - Setup External IdPs in Keycloak:
           - admin/configuration/idp/setup-other-idp.md
           - admin/configuration/idp/github-setup-idp.md
+        - admin/configuration/integration/declarative-keycloak-config.md
         - admin/configuration/opal/policy-repo-configuration.md
       - admin/maintenance.md
     - Usage:
