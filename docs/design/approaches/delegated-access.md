@@ -19,8 +19,8 @@ the user's workspace.
 According to the example above, the following assumptions can be made:
 
 * Both processing and storing the result are done using the requesting
-  user's identity. So there is no delegation of rights from one user to
-  another or to a dedicated Processing BB account.
+  user's identity. So there is no explicit delegation of rights from
+  one user to another or to a dedicated Processing BB account.
 * While the processing job is waiting in the queue, no user session
   should be actively kept open.
 * Processing may take a while. The processing job should be able to open
@@ -49,8 +49,10 @@ use of token exchange. In version 26.2, Keycloak introduced
 is compatible with RFC 8693, but does not support all use cases of
 RFC 8693. In particular it does not support exchanging access tokens
 for offline tokens, which would have been useful for EOEPCA.
-Furthermore, impersonation and delegation to another real user are
-not supported, but these are not really relevant for EOEPCA anyway.
+Furthermore, impersonation and delegation to another user are
+not supported. It is assumed that impersonation is not really
+relevant for EOEPCA, but delegation could be useful at least for
+the processing use case (user delegates to processing system).
 
 ## Approach 1: Offline Tokens
 
@@ -323,3 +325,11 @@ a single existing user session. This leads to the following implications:
 More details about the capabilities of the Standard Token Exchange
 feature and the reasoning behind them can be found in the
 [Keycloak issue](https://github.com/keycloak/keycloak/issues/31546).
+
+The discussion and progress regarding implementation of the 
+delegation feature is tracked by
+[this Keycloak issue](https://github.com/keycloak/keycloak/issues/38279).
+
+More information about the potential to use Standard Token Exchange
+in the context of EOEPCA can be found in a
+[separate document](https://eoepca.readthedocs.io/projects/iam/en/latest/design/approaches/token-exchange/).
