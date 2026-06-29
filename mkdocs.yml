@@ -22,6 +22,7 @@ nav:
         - design/components/policy-component/opal-opa.md
       - Proposed Approaches:
         - design/approaches/delegated-access.md
+        - design/approaches/token-exchange.md
         - design/approaches/client-secret-generation.md
       - API:
         - api/opa-policy-api.md
