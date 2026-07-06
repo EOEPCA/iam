@@ -10,12 +10,13 @@ deployment of the IAM BB.
 
 ### Components
 
-The IAM BB consists of three (optionally four) components that can be deployed and
+The IAM BB consists of three components that can be deployed and
 configured independently.
 
 The core component of the IAM BB is a Keycloak server that is
-installed through a [Bitnami Helm chart](https://bitnami.com/stack/keycloak/helm).
-It uses a customized container image that adds the
+deployed using Keycloak Operator, which is installed through
+a [Helm chart](https://charts.adfinis.com).
+Optionally it may use a customized container image that adds the
 [Keycloak-OPA plugin](https://github.com/EOEPCA/keycloak-opa-plugin)
 that allows Keycloak to use policy rules that are provided by an instance
 of Open Policy Agent (OPA).
@@ -33,13 +34,6 @@ that is used as the ingress controller and Policy Enforcement Point (PEP)
 for the IAM BB itself and can also be used as a PEP for other BBs that
 reside on the same or another cluster. It is installed through the native
 Apache [Helm chart](https://github.com/apache/apisix-helm-chart/).
-
-As an optional fourth component, the Identity API was added to the
-IAM BB a while ago. However, the Identity API is meanwhile considered
-deprecated and shall be removed in a later release. It is disabled by
-default and should not be used productively. If enabled, the Identity
-API is installed using the
-[Identity Service Helm chart](https://github.com/EOEPCA/helm-charts-dev/tree/develop/charts/identity-service).
 
 Furthermore there is a separate `iam-bb-config` Helm chart that
 contains some configuration based on the Crossplane Keycloak Provider.
