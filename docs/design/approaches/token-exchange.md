@@ -192,6 +192,42 @@ beyond the lifetime of the access token they receive. New access
 tokens can only be obtained from the original offline token, which
 the backend should not disclose.
 
+#### Approach using M2M account
+
+At present, it is not foreseen that a processing job calls external
+services except the Workspace API, which it primarily consults to
+obtain storage credentials. Furthermore, it is not necessary to
+strictly preserve the user's identity during processing, because the
+processing job is assigned to the user anyway. Thus the processing
+system already knows the user's identity, whereas the Workspace API
+does not really need it to return storage credentials. It just
+requires a token that expresses permission to obtain them.
+
+The current approach is therefore to use the processing system's own
+identity only. The processing system creates an access token with
+reasonable lifetime, which allows the processing job to obtain storage
+credentials for the workspace(s) on which it operates. It then passes
+this token to the processing job, which may use it to call the
+Workspace API to obtain storage credentials.
+
+Passing a token with the processing system's identity to a user process
+may be a security risk. Therefore it is important to limit the access
+token to the absolute minimum. This means that the default scope of the
+M2M client represented by the access token should be as minimal as
+possible, and that no unnecessary optional scopes should be requested
+when obtaining the token. The audience of the token should be limited
+to the Workspace API. User roles should also be limited to the required
+minimum.
+
+Ideally, a dedicated client should be used for this purpose. If this
+is not possible, the access token should at least be tailored through
+token exchange before being passed to the processing job.
+
+This approach is suitable as long as processing jobs only access the
+Workspace API for "simple" purposes. It is not suitable if a
+processing job needs to access external services that insist on the
+user to prove their own identity.
+
 ### Resource Health User Jobs
 
 Resource Health allows users to configure health check jobs that
@@ -334,7 +370,7 @@ The following example demonstrates how scopes and
 audiences can be added or removed:
 
 ```shell
-curl -s -S -k https://develop.eoepca.org/realms/eoepca/protocol/openid-connect/token \
+curl -s -S https://develop.eoepca.org/realms/eoepca/protocol/openid-connect/token \
     -H 'content-type: application/x-www-form-urlencoded' \
     -d "client_id=example-client-id" \
     -d "client_secret=example-client-secret" \
