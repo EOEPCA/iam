@@ -14,7 +14,7 @@ Admin UI.
 This document gives a short introduction in the aspects of
 the setup that are part of the IAM BB itself and provides some
 guidance regarding additional configuration to be contributed
-for integrating other EOEPCA Building Blocks with the IAM. 
+for integrating other EOEPCA Building Blocks with the IAM.
 
 Platform Operators may also find this information helpful
 for integrating custom components into their EOEPCA-based
@@ -30,7 +30,7 @@ of the IAM-BB Helm chart, which automatically builds a
 `KeycloakRealmImport` resource from them.
 
 If desired, this automatism can also be disabled, so that the
-`KeycloakRealmImport` resource can be provided separately. 
+`KeycloakRealmImport` resource can be provided separately.
 
 ### Base Settings
 
@@ -48,7 +48,7 @@ converting it to yaml.
 
 The `values.yaml` file includes some (commented) example settings,
 including e-mail settings that are typically required in every
-setup. 
+setup.
 
 This is an example how a basic configuration including e-mail
 settings could look like. Note that the SMTP password is taken
@@ -227,7 +227,7 @@ The store is named `eso-store-iam`. It is created if
 By default, the secret store can only be referenced from the
 `iam-management` namespace. If required, however, it can also
 be configured to be accessible from other namespaces, though
-this is not recommended. 
+this is not recommended.
 
 The `iam-bb-config` Helm chart can optionally generate
 `ExternalSecret` resources for the secrets that need to
@@ -259,7 +259,7 @@ Blocks and non-EOEPCA components.
 Crossplane resources for static setup should be defined in the
 `iam-management` namespace. However, Building Blocks like
 the Workspace BB that use them for dynamic configuration, should
-create their dynamic resources in their own namespace(s). 
+create their dynamic resources in their own namespace(s).
 
 ### Clients
 
@@ -404,9 +404,9 @@ spec:
     standardFlowEnabled: true
     standardTokenExchangeEnabled: false
     validRedirectUris:
-    - /*
+      - /*
     webOrigins:
-    - /*
+      - /*
 
 ```
 
@@ -417,7 +417,7 @@ can be configured. Token exchange should be used by services that
 delegate to other services in order to customize the scope and audience
 of the token to send to the delegate service.
 
-Note that the definition includes a an example client scope for
+Note that the definition includes an example client scope for
 adding an audience to a token and attaches it to the client as
 an optional scope. This is necessary, because audiences can indeed
 be filtered directly, but they can only be added through a client
@@ -507,6 +507,23 @@ a dedicated token that only has `backend-leaf-example-client` as
 audience by requesting scope `backend-leaf-example-client-audience`
 and restricting audience to `backend-leaf-example-client`.
 
+Note that the example above works for Keycloak 26.5, but only
+allows limited token exchange with Keycloak 26.6 and above.
+As of Keycloak 26.6, adding audience requires an appropriate
+role-scope mapping unless `fullScopeAllowed` is set to `true`.
+If `fullScopeAllowed` is `false`, adding audience is only
+possible for users that have one of the mapped roles of the
+target client. Such mappings should either be defined globally
+on the client's dedicated scope or locally on the audience
+scope to which they apply (`backend-leaf-example-client-audience`
+in the example above).
+
+However, unfortunately the Crossplane Keycloak Provider
+(latest version at time of writing: 3.0.1) does not seem to
+support this configuration (yet), so setting `fullScopeAllowed`
+to `true` might be unavoidable for a purely declarative
+configuration though it undermines security to some degree.
+
 #### Machine-to-Machine (M2M) Clients
 
 A M2M Client is a client with an attached service account that
@@ -525,7 +542,7 @@ itself and not e.g. by an APISIX route that protects the service.
 Notably this is important, because we do not use s separate
 gateway client for APISIX. A combined M2M and backend client
 would thus allow APISIX to act on behalf of the protected service
-and thereby foil its protection function. 
+and thereby foil its protection function.
 
 The following example demonstrates how a simple M2M client can
 be defined. The service account is created implicitly. The example
@@ -582,13 +599,18 @@ spec:
 Users are usually managed dynamically and are thus not created
 via Crossplane. An exception to this rule are example or admin users
 that are part of a Building Block's infrastructure. Common examples
-include:
+from the EOEPCA development environment include:
 
-* the standard demo users `alice`, `bob` and `eric`
-* the EOEPCA realm admin user `eoepca-admin`
+* the standard demo users `alice`, `bob` and `eric` (see [test-users.yaml](https://github.com/EOEPCA/eoepca-plus/blob/deploy-develop/argocd/eoepca/iam/parts/test-users.yaml))
+* the demo user `eoepcauser` (see [eoepca-user.yaml](https://github.com/EOEPCA/eoepca-plus/blob/deploy-develop/argocd/eoepca/iam/parts/eoepca-user.yaml))
+* the EOEPCA realm admin user `eoepca-admin` (see [eoepca-admin.yaml](https://github.com/EOEPCA/eoepca-plus/blob/tmp-dd-to-rke2-merge/argocd/eoepca/iam/parts/eoepca-admin.yaml))
 
-See [eoepca-admin.yaml](https://github.com/EOEPCA/eoepca-plus/blob/tmp-dd-to-rke2-merge/argocd/eoepca/iam/parts/eoepca-admin.yaml)
-for an example that also demonstrates how a role can be assigned to a user.
+The example files also demonstrate how roles can be assigned to a user.
+
+Note that the EOEPCA default roles must be included explicitly if any
+roles are explicitly assigned to users via Crossplane. A referenceable
+Crossplane representation of the `default-roles-eoepca` role is defined in
+[realm-roles.yaml](https://github.com/EOEPCA/eoepca-plus/blob/deploy-develop/argocd/eoepca/iam/parts/realm-roles.yaml).
 
 #### Roles
 
@@ -693,7 +715,7 @@ Examples:
 * More generally, `eoepca/foo` refers to an object named `foo` in
   the EOEPCA realm of the type represented by the resource being
   defined. Depending on the resource type, this may be a client,
-  user, role, group or whatever. 
+  user, role, group or whatever.
 
 The third path component is used to address objects that belong
 to a client. The second path component is always a client name

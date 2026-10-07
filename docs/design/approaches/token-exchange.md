@@ -6,8 +6,9 @@ using Token Exchange or related features.
 
 Keycloak's Legacy Token Exchange feature (V1) is explicitly not taken
 into consideration. Only Token Exchange V2 and related features are
-considered. The reference Keycloak version is 26.5.6 unless noted
-otherwise.
+considered. The initial reference Keycloak version was 26.5.6, but
+the evolution until Keycloak 26.8 is also considered where
+appropriate.
 
 ## Token Audience
 
@@ -17,7 +18,7 @@ of token exchange. It is primarily used to improve security.
 ### Security Considerations
 
 The audience of a token is mostly relevant for security.
-A service should only accept tokens that it has obtained itself
+A service should only accept a token that it has obtained itself
 (`azp` set to the requesting client) or that is intended to
 be consumed by it (`aud` includes the target client).
 
@@ -38,7 +39,7 @@ been compromised and intends to misuse Service A.
 
 In case of poor man's delegation, the same token is used
 everywhere, and this token allows using both Service A and
-Service B. So Service B can easily use the token it receives from
+Service B. So Service B can easily use the token it received from
 Service A to make malicious calls to Service A. BTW, this setup
 would also allow the user to call Service B directly, which
 may not be desired either.
@@ -54,7 +55,7 @@ rejected unless Service B is explicitly granted permission to
 obtain tokens with Service A as audience.
 
 So the minimum audience approach effectively prevents malicious
-services (ur users) to use services that they are not supposed
+services (or users) to use services that they are not supposed
 to use, thus minimizing potential damage.
 
 ### Audience Handling
@@ -83,7 +84,7 @@ them explicitly via Token Exchange.
 * At least every instance of the `openid-connect` plugin (typically every
   route, maybe unless `PluginConfig` is involved - tbc) retrieves its own
   token. This ensures that only tokens from the configured client are
-  passed to the backend. So, if the client is properly configured, the
+  passed to the backend. So, if the client is configured properly, the
   audience will be OK.
 
 ## Delegation Scenarios
@@ -112,11 +113,12 @@ processing system, which acts on behalf of the user.
 
 Delegation would be the natural and most appropriate approach
 to handle the processing scenario. During the request submission
-process, the User grants permission to the Processing System to
+process, the user grants permission to the Processing System to
 execute the processing request on their behalf. While executing
 the processing request, the Processing System uses this
 permission to obtain a token that allows it to access external
-systems on the user's behalf as needed.
+systems on the user's behalf as needed. This includes retrieving
+inputs and storing processing results.
 
 This involves the following steps:
 
@@ -124,29 +126,34 @@ This involves the following steps:
    login process (or optionally later in a separate step), the user
    is asked to permit the Processing System to call required
    services on their behalf. This results in an access token with
-   the claim `may_act` set to the Processing System's ID. Note that
-   the user's consent is stored in Keycloak and need not be
-   repeated on every login.
+   the claim `may_act` set to the Processing System's ID.
 2. The user sets up and submits a processing request, which is
    accompanied by the access token created above. The Processing
    System frontend queues the request incl. the token.
-3. Some time later the Processing System backend decides to execute
+3. Some time later, the Processing System backend decides to execute
    the processing request. Using the user's token as the subject
    token and a token representing its own identity as the actor
    token, it requests a new access token from the IdP using
    token exchange. This token expresses that the Processing System
    is acting on behalf of the original user.
 
-Note that Keycloak does not yet support delegation using token
-exchange. So the approach sketched above cannot currently be used
-with Keycloak.
+Keycloak has supported basic token exchange delegation as a preview
+feature since version 26.7. Since version 26.8, it supports
+delegation from a user to a client (= M2M user), which is required
+for the scenario described above. Delegation support is still in
+preview state though.
 
-Note: It is unclear if the access token may be expired when it is
-used as a subject token in token exchange. If it cannot be
-expired, the approach above may not work reliably, because it
-cannot be guaranteed that the access token is still valid or even
-that the original user session still exists when processing is
-triggered.
+Note: The access token must still be valid when it is used as a
+subject token in token exchange. Thus the approach above may not
+work reliably, because it cannot be guaranteed that the access
+token is still valid or even that the original user session still
+exists when processing is triggered. In principle, this can
+usually be mitigated by exchanging the access token for a
+refresh token and implementing a mechanism to keep it alive.
+However, there are cases in which Keycloak does not allow
+obtaining a refresh token, e.g., if the access token was obtained
+from an offline token. In these cases, the mitigation approach
+does not work.
 
 #### Approach using offline tokens
 
@@ -182,8 +189,9 @@ A possible way to obtain an offline token is described
 [here](https://eoepca.readthedocs.io/projects/iam/en/latest/design/approaches/delegated-access/#offline-token-retrieval).
 Note that the offline token must be stored and managed by the
 frontend. It also needs to be renewed from time to time.
-In contrast, in the delegation case, the user's consent would only
-have to be requested once and would then be managed by Keycloak. 
+In contrast, in the delegation case, consent is managed by Keycloak.
+Note, however, that Keycloak currently requires the user to express
+consent for every single user session.
 
 Note that offline tokens and access tokens obtained from them cannot
 be exchanged for refresh tokens. This means that services called by
@@ -213,7 +221,7 @@ Workspace API to obtain storage credentials.
 Passing a token with the processing system's identity to a user process
 may be a security risk. Therefore it is important to limit the access
 token to the absolute minimum. This means that the default scope of the
-M2M client represented by the access token should be as minimal as
+M2M client represented by the access token should be as narrow as
 possible, and that no unnecessary optional scopes should be requested
 when obtaining the token. The audience of the token should be limited
 to the Workspace API. User roles should also be limited to the required
@@ -281,22 +289,25 @@ Keycloak's Standard Token Exchange generally supports the following
 features:
 
 * Scope
-  * Reduction
-  * Extension (only supported for scopes configured for the calling client)
+    * Reduction
+    * Extension (only supported for scopes configured for the calling client)
 * Audience
-  * Reduction (Dropping audiences also drops their associates roles)
-  * Extension (indirectly via scopes)
+    * Reduction (Dropping audiences also drops their associates roles)
+    * Extension (indirectly via scopes)
 * Retrieve refresh token for an access token
+* Delegation (limited support as a preview feature, see
+  [this issue](https://github.com/keycloak/keycloak/issues/38279))
+    * delegation to admin (since Keycloak 26.7)
+    * delegation to client (since 26.8)
 
 The following features are *not* supported:
 
 * Impersonation
-* Delegation (under development, see
-  [this issue](https://github.com/keycloak/keycloak/issues/38279))
 * Exchanging an offline token for another token (Note: An access token
   can be obtained using the `refresh_token` grant)
 * Exchanging another token for an offline token
-* Retrieving a refresh token for an access token obtained from an offline session
+* Retrieving a refresh token for an access token obtained from an
+  offline session or through a JWT Authorization Grant
 
 ### Use Cases
 
@@ -312,7 +323,7 @@ on behalf of User U, maintaining User U's identity. Client A may want to
 
 Note: Client A is mentioned as the authorized party in the exchanged token.
 So it is apparent to Client B that the token was exchanged by/ issued to
-Client A and that Client A is acting on behalf of User U. 
+Client A and that Client A is acting on behalf of User U.
 
 Note: Impersonation (as another "real" user) is probably not
 required in the context of EOEPCA+.
@@ -377,7 +388,8 @@ curl -s -S https://develop.eoepca.org/realms/eoepca/protocol/openid-connect/toke
     -d "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
     -d "subject_token=the_original_access_token" \
     -d "subject_token_type=urn:ietf:params:oauth:token-type:access_token" \
-    -d "audience=client_B,client_C" \
+    -d "audience=client_B" \
+    -d "audience=client_C" \
     -d "scope=add_client_B"
 ```
 
@@ -437,8 +449,8 @@ as well as a new access token.
 
 Note that the request fails if the original access token
 (`subject_token`) has been obtained directly or indirectly from
-an offline token. It also fails if the requesting client does
-not support refresh tokens.
+an offline token or through a JWT Authorization Grant. It also
+fails if the requesting client does not support refresh tokens.
 
 ## Internal-to-External Token Exchange
 
@@ -448,7 +460,9 @@ Keycloak.
 The Identity Brokering API can be used to retrieve
 the token issued by the federated IdP at which the user
 authenticated. If this is useful for inter-platform
-federation still needs to be evaluated.
+federation still needs to be evaluated. In most cases,
+it should be possible to use an external-to-internal
+exchange mechanism instead.
 
 ## External-to-Internal Token Exchange
 
@@ -465,3 +479,12 @@ achieved using the existing Standard Token Exchange.
 This combination is expected to be sufficient for most if
 not all relevant inter-platform M2M scenarios if the
 platforms involved are federated bidirectionally.
+
+For pure M2M access where no user identity is involved,
+Federated Client Authentication can be used. The mechanism
+is similar to the JWT Authorization Grant, except that
+it deals with clients (machine identities) instead of
+real users.
+
+See the [Federated Delegation](federated-auth.md) document
+for more details.
