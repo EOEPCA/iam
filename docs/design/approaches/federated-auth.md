@@ -157,6 +157,7 @@ following limitations:
   alternative.
 
 The JWT Authorization Grant requires the following prerequisites:
+
 * It must be enabled for the federated IdP (source IdP).
 * It must be enabled for the client that performs the authorization.
 * The source IdP must be in the client's list of accepted IdPs.
@@ -307,3 +308,149 @@ may lead to improved solutions in the future. For now, these
 will not be evaluated.
 
 [OAuth Identity and Authorization Chaining Across Domains](https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-chaining/)
+
+## Federation Structure
+
+This section sketches some approaches to create a federation
+between multiple EOEPCA-based platforms.
+
+### Mutual Federation
+
+If only two or at most three platforms are involved, it is an
+option to simply establish static mutual trust relationships
+between them. This is done by federating the IdPs of all
+platforms with one another, such that each IdP accepts
+identities provided by all other IdPs.
+
+For two platforms, this leads to two relationships. For three
+platforms, six trust relationships would have to be established.
+It is obvious that this approach is feasible for two platforms,
+but it does not scale at all. The following figure
+illustrates this.
+
+![Image](mutual-trust.png)
+
+If multiple platforms accept identities from a shared set of
+external IdPs, this requires individual trust
+relationships between each platform and each external IdP.
+Furthermore, this may require users to explicitly (manually)
+link accounts via multiple paths. Manual linking is necessary,
+because external IdPs cannot usually be fully trusted. There
+is no absolute guarantee that users on two IdPs that have the
+same e-mail address are actually the same person, e.g.,
+because one of the IdPs does not verify e-mail addresses
+properly or because an e-mail address was reused by another
+person.
+
+For two platforms that share an external IdP, an identity
+from that IdP can reach each platform directly or via the
+other platform. Unless the user always logs in via the same
+platform, both the direct and the indirect links may be
+required for both platforms, leading to up to four links
+altogether. This may still be acceptable, but quickly becomes
+inscrutable if more than two platforms are involved.
+This can be mitigated by the shared IdP approach described next.
+
+### Shared IdP
+
+A shared IdP that is fully trusted by multiple platforms allows
+platforms to collaborate without establishing mutual trust
+relationships. Instead, each platform only needs to trust
+the shared IdP. External IdPs should be integrated via the
+shared IdP and can then be used transparently by all platforms.
+The figure below illustrates the idea.
+
+![Image](shared-idp.png)
+
+The assumption that the shared IdP can be fully trusted
+(especially regarding claims like the e-mail address) allows
+automating the linking of user accounts between each platform
+and the shared IdP. Whenever a user logs in to a platform for
+the first time, a shadow account can be created without user
+interaction, because it can be assumed that the shared IdP has
+already verified the user's e-mail address and possibly
+performed further verification as necessary.
+
+SSO between platforms would also work seamlessly. Each platform
+IdP would simply delegate authentication to the shared IdP,
+which would use the existing user session if available.
+
+Of course, this approach also has its downsides:
+
+A shared trusted IdP must be operated by an organization that is
+trusted by all platform providers. This may be a problem if
+platforms are operated by different providers that cannot agree
+on a trusted third party. However, as long as platforms are run
+in the context of a single organization like ESA, this
+organization can take the role of the trusted third party.
+
+For machine-to-machine interaction between platforms, mutual trust
+would be helpful, because it allows direct authentication between
+the platform. However, the shared IdP approach does intentionally
+not provide mutual trust between platforms to maintain scalability.
+
+If a platform wants to authenticate at another platform, it thus
+needs a token from the shared IdP. The platform IdP may have stored
+the token that it received upon login, but the individual platform
+services do not have access to it. Keycloak's Identity Brokering API
+may solve this issue, but it complicates the authentication process
+and may be a security risk, because it gives services access to
+tokens they should normally not possess. So it should be avoided
+if possible.
+
+Another imaginable mitigation approach could be to introduce mutual
+trust between the shared IdP and each platform. This would possibly
+allow platform services to exchange tokens issued by the platform
+IdP for tokens issued by the shared IdP, e.g. by using the JWT
+Authorization Grant. However, this solution introduces a loop into
+the login process and could be a security risk. Furthermore, it
+is unclear if it would work at all.
+
+### OpenID Federation
+
+OpenID Federation could help to eliminate most of the shortcomings
+of the previous approaches. The following figure shows a variant
+of the shared IdP approach that leverages OpenID Federation.
+Solid arrows represent explicit trust relationships, whereas dashed
+arrows depict implicit trust relationships established through
+OpenID Federation.
+
+![Image](openid-federation.png)
+
+OpenID Federation introduces an independent trust infrastructure.
+In the depicted case, a Trust Anchor serves as a trusted third
+party. It is assumed that it is operated by the same organization
+as the shared IdP. If the shared IdP itself supports acting as a
+Trust Anchor, it may even be the same piece of software.
+
+An Intermediate would be used instead of a Trust Anchor if an existing
+external Trust Anchor (e.g., provided by an external federation) shall
+be used. This could eliminate the explicit trust relationships
+between the shared IdP and the external IdPs.
+
+The depicted approach basically combines the shared IdP approach with
+the mutual trust approach. The OpenID Federation infrastructure (Trust
+Anchor or Intermediate) adds a bit of complexity, but in turn
+eliminates the need to establish mutual trust relationships
+explicitly. This makes the approach very flexible and scalable.
+
+E.g., adding another platform would just require two steps:
+
+1. Establish a trust relationship between the platform's IdP and
+   the relevant Trust Anchor or Intermediate, i.e., make the
+   platform IdP trust the Trust Anchor.
+2. Configure the platform IdP as a child entity of the Trust Anchor
+   or Intermediate.
+
+The depicted structure is just an example. Other alternative
+topologies are also possible depending on the requirements and
+context.
+E.g., it may be possible to eliminate the shared IdP if all
+platforms are integrated into a common existing OpenID
+Federation infrastructure. It may also be beneficial to
+integrate certain platform services into the topology in order
+to allow them to interact directly with other platforms without
+having to involve the IdPs of both platforms.
+
+Though Keycloak does not support OpenID Federation yet, it appears
+to be a promising option for the future.

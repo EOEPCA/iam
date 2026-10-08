@@ -237,8 +237,8 @@ be available in the `iam-management` namespace.
 
 An EOEPCA Admin user is *not* created by the Helm chart, but it
 is part of the IAM configuration on the demo cluster.
-See [eoepca-admin.yaml](https://github.com/EOEPCA/eoepca-plus/blob/tmp-dd-to-rke2-merge/argocd/eoepca/iam/parts/eoepca-admin.yaml)
-for details. *(**TODO:** Point link to `deploy-develop` branch after merge)*
+See [eoepca-admin.yaml](https://github.com/EOEPCA/eoepca-plus/blob/deploy-develop/argocd/eoepca/iam/parts/eoepca-admin.yaml)
+for details.
 
 The configuration picks up the existing `realm-admin` role as
 a Crossplane resource, creates a user named `eoepca-admin` and
