@@ -341,7 +341,7 @@ attributes. Confidential information should only be released
 individually to known SPs on a need-to-know basis.
 
 There are predefined entity categories like
-[Coco v.2](#refeds-data-protection-code-of-conduct--coco-v2-),
+[Coco v.2](#refeds-data-protection-code-of-conduct-coco-v2),
 but custom categories can also be defined and registered if needed.
 
 #### Sirtfi
