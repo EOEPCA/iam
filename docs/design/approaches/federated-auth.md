@@ -111,7 +111,7 @@ because consent is not stored. This is inconvenient and may be an
 obstacle for automation on the user's side.
 More details about delegation support in Keycloak and how to
 use it can be found
-[here](https://www.keycloak.org/securing-apps/token-exchange#_token-exchange-delegation)
+[here](https://www.keycloak.org/securing-apps/token-exchange#_token-exchange-delegation).
 
 Token Exchange Delegation allows merging two identities into a
 single token. These identities must be provided as valid tokens.
@@ -386,7 +386,7 @@ organization can take the role of the trusted third party.
 
 For machine-to-machine interaction between platforms, mutual trust
 would be helpful, because it allows direct authentication between
-the platform. However, the shared IdP approach does intentionally
+the platforms. However, the shared IdP approach does intentionally
 not provide mutual trust between platforms to maintain scalability.
 
 If a platform wants to authenticate at another platform, it thus

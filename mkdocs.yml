@@ -42,6 +42,7 @@ nav:
           - admin/configuration/idp/setup-other-idp.md
           - admin/configuration/idp/github-setup-idp.md
           - admin/configuration/idp/codeberg-setup-idp.md
+          - admin/configuration/idp/edugain-integration.md
         - admin/configuration/integration/declarative-keycloak-config.md
         - admin/configuration/opal/policy-repo-configuration.md
       - admin/maintenance.md
